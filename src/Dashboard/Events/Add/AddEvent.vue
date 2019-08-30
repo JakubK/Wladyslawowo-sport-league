@@ -33,6 +33,15 @@
             </transition>
           </div>
           <div class="field">
+            <label class="label">Sezon</label>
+            <div class="control">
+              <input class="input" name="season" v-validate="'required'" data-vv-delay="250" min="1" type="number" v-model="event.season" >
+            </div>
+            <transition name="fade-left">
+              <p class="help is-danger" v-if="errors.has('season')">{{errors.first('season')}}</p>
+            </transition>
+          </div>
+          <div class="field">
             <div class="file has-name">
               <label class="file-label">
                 <input class="file-input" type="file" name="file" @change="onFileSelected" accept="image/*">
@@ -122,7 +131,8 @@ export default {
         description: '',
         date: '',
         players: [],
-        images: []
+        images: [],
+        season: '1'
       },
       currentPlayer: {
         name: '',
@@ -140,9 +150,8 @@ export default {
     }
   },
   methods: {
-    async handleSubmit()
-    {
-      clearTimeout(this.alertTimeoutId)
+    async handleSubmit() {
+      clearTimeout(this.alertTimeoutId);
 
       const valid = await this.$validator.validateAll();
 
@@ -167,8 +176,9 @@ export default {
         points: this.currentPlayer.points
       };
 
-      if(this.event.players === undefined)
+      if (this.event.players === undefined) {
         this.event.players = [];
+      }
 
       this.event.players.push(player);
     },
@@ -179,31 +189,28 @@ export default {
     goBack() {
       this.$store.dispatch('closeModal');
     },
-    dismissAlert()
-    {
+    dismissAlert() {
       this.alertMessage = null;
     },
-    onFileSelected()
-    {
+    onFileSelected() {
       this.event.images.push(event.target.files[0]);
 
-      var files = event.target.files || event.dataTransfer.files;
+      let files = event.target.files || event.dataTransfer.files;
       if (!files.length)
         return;
       this.createImage(files[0]);
     },
     createImage(file) {
-      var image = new Image();
-      var reader = new FileReader();
-      var vm = this;
+      let image = new Image();
+      let reader = new FileReader();
+      let vm = this;
 
       reader.onload = (e) => {
         vm.images.push(e.target.result);
       };
       reader.readAsDataURL(file);
     },
-    removeImage(index)
-    {
+    removeImage(index) {
       this.images.splice(index,1);
       this.event.images.splice(index,1);
     }

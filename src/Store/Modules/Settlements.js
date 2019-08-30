@@ -84,6 +84,30 @@ export default {
 
       return result;
     },
+    settlementSeasonData: state => (id, season) =>
+    {
+      let result = [];
+      let playersOfSettlement = players.getters.players(players.state).filter(player => player.settlementId === id);
+      console.log(playersOfSettlement);
+      for(let i = 0;i < playersOfSettlement.length;i++)
+      {
+        let playerDetails = players.getters.briefPlayerById(players.state, playersOfSettlement[i].id);
+        console.log(playerDetails);
+        for(let j = 0;j < playerDetails.playedEvents.length;j++)
+        {
+          if(playerDetails.playedEvents[j].season == season)
+            result.push(playerDetails.playedEvents[j]);
+        }
+      }
+
+      return result;
+    },
+    settlementTopSeason: state => id =>
+    {
+      const allEvents = events.getters.events(events.state);
+      let newestSeason = Math.max.apply(Math, allEvents.map(function(o) { return o.season; }))
+      return newestSeason;
+    },
     briefSettlementById: state => id => {
       const allEvents = events.getters.events(events.state);
       const settlement = state.settlements.filter(settlement => settlement.id === id);
@@ -96,6 +120,8 @@ export default {
         searchSettlement = {};
       }
 
+      let newestSeason = Math.max.apply(Math, allEvents.map(function(o) { return o.season; }))
+
       playersOfSettlement = players.getters.players(players.state).filter(player => player.settlement === searchSettlement.name);
 
       if (allEvents) {
@@ -104,8 +130,11 @@ export default {
             event.players.forEach(player => {
               playersOfSettlement.forEach(item => {
                 if (player.name === item.name) {
-                  sum += parseInt(player.points);
-                }
+                  if(item.season == newestSeason)
+                  {
+                    sum += parseInt(player.points);
+                  }                
+                }  
               })
             });
           }

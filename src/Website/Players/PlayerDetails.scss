@@ -1,0 +1,35 @@
+.seasons-header
+{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.season-controls
+{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.seasons-title
+{
+  margin-bottom: 0;
+}
+
+button
+{
+  background: transparent;
+  border: none;
+  outline: none;
+  &:hover
+  {
+    cursor: pointer;
+  }
+}
+
+svg
+{
+  width: 30px;
+  height: 30px;
+}

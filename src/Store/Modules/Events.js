@@ -94,7 +94,8 @@ export default {
           description: dataValue[itemKey].description,
           players: dataValue[itemKey].players,
           date: dataValue[itemKey].date,
-          imageUrls: dataValue[itemKey].imageUrls
+          imageUrls: dataValue[itemKey].imageUrls,
+          season: dataValue[itemKey].season
         })
       });
 
@@ -106,6 +107,7 @@ export default {
         description: event.description,
         date: event.date,
         players: event.players,
+        season: event.season
       };
 
       let key;
@@ -113,6 +115,8 @@ export default {
 
       const data = await firebase.database().ref("events").push(newEvent)
       key = data.key;
+
+
 
       if (event.images.length > 0) {
         for (let i = 0;i < event.images.length;i++) {
@@ -144,9 +148,6 @@ export default {
         event.players = [];
       }
       const storageRef = firebase.storage().ref();
-
-      console.log(event);
-      
 
       await firebase.database().ref('events').child(event.id).update(event).then(key => {
         if (event.files) {
