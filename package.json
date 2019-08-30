@@ -23,8 +23,11 @@
     "@vue/cli-plugin-babel": "^3.0.0-rc.10",
     "@vue/cli-plugin-pwa": "^3.0.0-rc.10",
     "@vue/cli-service": "^3.0.0-rc.10",
+    "apollo-boost": "^0.4.4",
+    "graphql": "^14.5.4",
     "node-sass": "^4.9.0",
     "sass-loader": "^7.0.1",
+    "vue-apollo": "^3.0.0-rc.2",
     "vue-template-compiler": "^2.5.16"
   },
   "browserslist": [
