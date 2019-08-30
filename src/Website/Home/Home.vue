@@ -3,7 +3,7 @@
     <div class="website-container">
       <div class="home">
         <div class="home-column">
-          <Slider :lastNews="lastNews"></Slider>
+          <!-- <Slider :lastNews="lastNews"></Slider> -->
           <section class="info">
             <h3 class="home-title title is-4">Liga sportowa Gminy Władysławowo</h3>
             <p class="info-description">
@@ -24,7 +24,8 @@
                 </figure>
                 <div class="event-description">
                   <h4 class="title is-5"><router-link :to="`events/${event.id}`" :aria-label="event.name" :title="event.name">{{event.name}}</router-link> </h4>
-                  <p class="vent-description-text">{{event.description | reduceText }}</p>
+                  <!-- <p class="vent-description-text">{{event.description | reduceText }}</p> -->
+                  <p class="vent-description-text">{{event.description}}</p>
                   <router-link class="event-description-btn button is-danger" :to="`events/${event.id}`" :aria-label="event.name" :title="event.name">Zobacz Więcej</router-link>
                   <span class="event-description-date">{{event.date}}</span>
                 </div>
@@ -33,7 +34,7 @@
           </section>
         </div>
         <div class="home-column">
-          <Sidebar :players="players" :settlements="settlements"></Sidebar>
+          <!-- <Sidebar :players="players" :settlements="settlements"></Sidebar> -->
         </div>
       </div>
     </div>
@@ -46,26 +47,39 @@
 
 import Sidebar from "./Sidebar/Sidebar"
 import Slider from "./Slider/Slider";
+import gql from 'graphql-tag'
 
 export default {
   name: "Home",
+  apollo:{
+    events: gql`
+      query {
+      events
+      {
+        id,
+        name,
+        date,
+        description
+      }
+    }`
+  },
   components: {
     Slider,
     Sidebar
   },
   computed: {
-    lastNews() {
-      return this.$store.getters.topNews;
-    },
-    events() {
-      return this.$store.getters.topEvents;
-    },
-    settlements() {
-      return this.$store.getters.topSettlements;
-    },
-    players() {
-      return this.$store.getters.topPlayers;
-    }
+    // lastNews() {
+    //   // return this.$store.getters.topNews;
+    // },
+    // // events() {
+    // //   // return this.$store.getters.topEvents;
+    // // },
+    // settlements() {
+    //   // return this.$store.getters.topSettlements;
+    // },
+    // players() {
+    //   // return this.$store.getters.topPlayers;
+    // }
   }
 };
 
