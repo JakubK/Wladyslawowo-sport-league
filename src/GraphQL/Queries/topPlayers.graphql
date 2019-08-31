@@ -1,0 +1,9 @@
+query
+{
+  topPlayers
+  {
+    id,
+    name,
+    points
+  }
+}
