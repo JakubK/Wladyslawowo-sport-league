@@ -1,0 +1,8 @@
+query topEvents
+{
+  topEvents
+  {
+    id,
+    name
+  }
+}
