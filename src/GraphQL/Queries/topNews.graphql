@@ -1,0 +1,10 @@
+query
+{
+  topNews
+  {
+    id,
+    name,
+    description,
+    date
+  }
+}

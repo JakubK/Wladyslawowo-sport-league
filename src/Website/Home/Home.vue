@@ -3,7 +3,7 @@
     <div class="website-container">
       <div class="home">
         <div class="home-column">
-          <!-- <Slider :lastNews="lastNews"></Slider> -->
+          <Slider :lastNews="topNews"></Slider>
           <section class="info">
             <h3 class="home-title title is-4">Liga sportowa Gminy Władysławowo</h3>
             <p class="info-description">
@@ -34,7 +34,7 @@
           </section>
         </div>
         <div class="home-column">
-          <!-- <Sidebar :players="players" :settlements="settlements"></Sidebar> -->
+          <!-- <Sidebar :players="topPlayers" :settlements="settlements"></Sidebar> -->
         </div>
       </div>
     </div>
@@ -49,7 +49,9 @@ import Sidebar from "./Sidebar/Sidebar"
 import Slider from "./Slider/Slider";
 import gql from 'graphql-tag'
 
+import topPlayers from '../../GraphQL/Queries/topPlayers.graphql'
 import topEvents from '../../GraphQL/Queries/topEvents.graphql'
+import topNews from '../../GraphQL/Queries/topNews.graphql'
 
 export default {
   name: "Home",
@@ -59,7 +61,8 @@ export default {
   },
   apollo:
   {
-    topEvents: topEvents
+    topEvents: topEvents,
+    topNews: topNews
   },
   computed: {
     // lastNews() {
