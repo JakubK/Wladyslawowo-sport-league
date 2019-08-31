@@ -34,7 +34,7 @@
           </section>
         </div>
         <div class="home-column">
-          <!-- <Sidebar :players="topPlayers" :settlements="settlements"></Sidebar> -->
+          <Sidebar :players="topPlayers" :settlements="topSettlements"></Sidebar>
         </div>
       </div>
     </div>
@@ -52,6 +52,7 @@ import gql from 'graphql-tag'
 import topPlayers from '../../GraphQL/Queries/topPlayers.graphql'
 import topEvents from '../../GraphQL/Queries/topEvents.graphql'
 import topNews from '../../GraphQL/Queries/topNews.graphql'
+import topSettlements from '../../GraphQL/Queries/topSettlements.graphql'
 
 export default {
   name: "Home",
@@ -62,19 +63,10 @@ export default {
   apollo:
   {
     topEvents: topEvents,
-    topNews: topNews
+    topNews: topNews,
+    topSettlements: topSettlements,
+    topPlayers: topPlayers
   },
-  computed: {
-    // lastNews() {
-    //   // return this.$store.getters.topNews;
-    // },
-    // // events() {
-    // //   // return this.$store.getters.topEvents;
-    // // },
-    // settlements() {
-    //   // return this.$store.getters.topSettlements;
-    // },
-  }
 };
 
 </script>
