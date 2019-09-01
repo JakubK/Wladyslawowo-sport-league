@@ -3,7 +3,7 @@
     <div class="website-container">
       <div class="home">
         <div class="home-column">
-          <!-- <Slider :lastNews="lastNews"></Slider> -->
+          <Slider :lastNews="topNews"></Slider>
           <section class="info">
             <h3 class="home-title title is-4">Liga sportowa Gminy Władysławowo</h3>
             <p class="info-description">
@@ -18,14 +18,15 @@
           </section>
           <section class="events">
             <h3 class="event-title">Imprezy</h3>
-            <ul class="events-list" v-for="event in events" :key="event.id">
+            <ul class="events-list" v-for="event in topEvents" :key="event.id">
               <li class="event">
-                <figure class="event-img" style="background-image: url(https://stmed.net/sites/default/files/bicycle-wallpapers-31871-9909783.jpg);">
+                <figure class="event-img" v-if="event.medias[0] !== undefined" v-bind:style="{ 'background-image': `url(${event.medias[0]})` }" >
+                </figure>
+                <figure class="event-img" v-else style="background-image: url(https://stmed.net/sites/default/files/bicycle-wallpapers-31871-9909783.jpg);">
                 </figure>
                 <div class="event-description">
                   <h4 class="title is-5"><router-link :to="`events/${event.id}`" :aria-label="event.name" :title="event.name">{{event.name}}</router-link> </h4>
-                  <!-- <p class="vent-description-text">{{event.description | reduceText }}</p> -->
-                  <p class="vent-description-text">{{event.description}}</p>
+                  <p class="event-description-text">{{event.description | reduceText}}</p>
                   <router-link class="event-description-btn button is-danger" :to="`events/${event.id}`" :aria-label="event.name" :title="event.name">Zobacz Więcej</router-link>
                   <span class="event-description-date">{{event.date}}</span>
                 </div>
@@ -34,7 +35,7 @@
           </section>
         </div>
         <div class="home-column">
-          <!-- <Sidebar :players="players" :settlements="settlements"></Sidebar> -->
+          <Sidebar :players="topPlayers" :settlements="topSettlements"></Sidebar>
         </div>
       </div>
     </div>
@@ -49,38 +50,24 @@ import Sidebar from "./Sidebar/Sidebar"
 import Slider from "./Slider/Slider";
 import gql from 'graphql-tag'
 
+import topPlayers from '../../GraphQL/Queries/topPlayers.graphql'
+import topEvents from '../../GraphQL/Queries/topEvents.graphql'
+import topNews from '../../GraphQL/Queries/topNews.graphql'
+import topSettlements from '../../GraphQL/Queries/topSettlements.graphql'
+
 export default {
   name: "Home",
-  apollo:{
-    events: gql`
-      query {
-      events
-      {
-        id,
-        name,
-        date,
-        description
-      }
-    }`
-  },
   components: {
     Slider,
     Sidebar
   },
-  computed: {
-    // lastNews() {
-    //   // return this.$store.getters.topNews;
-    // },
-    // // events() {
-    // //   // return this.$store.getters.topEvents;
-    // // },
-    // settlements() {
-    //   // return this.$store.getters.topSettlements;
-    // },
-    // players() {
-    //   // return this.$store.getters.topPlayers;
-    // }
-  }
+  apollo:
+  {
+    topEvents: topEvents,
+    topNews: topNews,
+    topSettlements: topSettlements,
+    topPlayers: topPlayers
+  },
 };
 
 </script>

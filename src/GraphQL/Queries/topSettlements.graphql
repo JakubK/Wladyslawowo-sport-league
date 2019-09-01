@@ -1,0 +1,9 @@
+query
+{
+  topSettlements
+  {
+    id,
+    name,
+    points
+  }
+}
