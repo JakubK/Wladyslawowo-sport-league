@@ -20,7 +20,9 @@
             <h3 class="event-title">Imprezy</h3>
             <ul class="events-list" v-for="event in topEvents" :key="event.id">
               <li class="event">
-                <figure class="event-img" style="background-image: url(https://stmed.net/sites/default/files/bicycle-wallpapers-31871-9909783.jpg);">
+                <figure class="event-img" v-if="event.medias[0] !== undefined" v-bind:style="{ 'background-image': `url(${event.medias[0]})` }" >
+                </figure>
+                <figure class="event-img" v-else style="background-image: url(https://stmed.net/sites/default/files/bicycle-wallpapers-31871-9909783.jpg);">
                 </figure>
                 <div class="event-description">
                   <h4 class="title is-5"><router-link :to="`events/${event.id}`" :aria-label="event.name" :title="event.name">{{event.name}}</router-link> </h4>
