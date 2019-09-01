@@ -26,8 +26,7 @@
                 </figure>
                 <div class="event-description">
                   <h4 class="title is-5"><router-link :to="`events/${event.id}`" :aria-label="event.name" :title="event.name">{{event.name}}</router-link> </h4>
-                  <!-- <p class="vent-description-text">{{event.description | reduceText }}</p> -->
-                  <p class="vent-description-text">{{event.description}}</p>
+                  <p class="event-description-text">{{event.description | reduceText}}</p>
                   <router-link class="event-description-btn button is-danger" :to="`events/${event.id}`" :aria-label="event.name" :title="event.name">Zobacz Więcej</router-link>
                   <span class="event-description-date">{{event.date}}</span>
                 </div>
