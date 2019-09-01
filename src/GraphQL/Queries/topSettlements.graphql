@@ -4,7 +4,6 @@ query
   {
     id,
     name,
-    description,
     points
   }
 }

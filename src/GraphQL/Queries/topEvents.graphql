@@ -3,6 +3,8 @@ query
   topEvents
   {
     id,
-    name
+    name,
+    description,
+    medias
   }
 }
