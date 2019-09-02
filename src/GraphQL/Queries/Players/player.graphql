@@ -1,0 +1,20 @@
+query player($id: Int!)
+{
+  player(id: $id)
+  {
+    id,
+    name,
+    media,
+    settlement,
+    points,
+    events: scores
+    {
+      event{
+        name,
+        date
+      }
+      
+      points: value
+    }
+  }
+}
