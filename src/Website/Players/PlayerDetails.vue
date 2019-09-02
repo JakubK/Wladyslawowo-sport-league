@@ -3,8 +3,8 @@
 		<div class="website-container">
 			<section class="description">
 				<h2 class="description-header title is-3">{{ player.name }}</h2>
-				<figure class="description-img" v-if="player.imageUrl">
-					<img class="player-img" :src="player.imageUrl" :alt="player.name"/>
+				<figure class="description-img" v-if="player.media">
+					<img class="player-img" :src="player.media" :alt="player.name"/>
 				</figure>
 				<div class="description-content">
 					<p class="description-content-text">Liczba punktów: <b>{{ player.points }}</b></p>
@@ -50,10 +50,10 @@
 								</tr>
 							</thead>
 							<tbody>
-								<tr v-for="(event, index) in player.playedEvents" :key="index">
+								<tr v-for="(event, index) in player.events" :key="index">
 									<th>{{ index + 1 }}</th>
-									<th>{{ event.name }}</th>
-									<th>{{ event.date }}</th>
+									<th>{{ event.event.name }}</th>
+									<th>{{ event.event.date }}</th>
 									<th>{{ event.points }} pkt</th>
 								</tr>
 							</tbody>
@@ -85,8 +85,8 @@
 						<tbody>
 							<tr v-for="(event, index) in seasonData" :key="index">
 								<th>{{ index + 1 }}</th>
-								<th>{{ event.name }}</th>
-								<th>{{ event.date }}</th>
+								<th>{{ event.event.name }}</th>
+								<th>{{ event.event.date }}</th>
 								<th>{{ event.points }} pkt</th>
 							</tr>
 						</tbody>
@@ -101,6 +101,9 @@
 	</main>
 </template>
 <script>
+import player from '../../GraphQL/Queries/Players/player.graphql'
+import gql from 'graphql-tag'
+
 export default {
 	props: ['id'],
 	name: "PlayerDetails",
@@ -111,36 +114,44 @@ export default {
 			maxSeason: null
 		};
 	},
-	computed:
+	apollo:
 	{
-		player()
-		{
-			return this.$store.getters.briefPlayerById(this.id);
-		},
-		topSeason()
-		{
-			return this.$store.getters.playerTopSeason(this.player);
-		},
-		seasonData()
-		{
-			return this.$store.getters.seasonData(this.player, this.season);
-		}
-	},
-	methods:
-	{
-		setSeason(targetVal)
-		{
-			if(targetVal >= 1 && targetVal <= this.topSeason)
+		player: {
+			query: player,
+			variables()
 			{
-				this.season = targetVal;
+				return{
+					id: this.id
+				}
 			}
 		}
 	},
-	mounted()
+	computed:
 	{
-		this.maxSeason = this.topSeason;
-		this.setSeason(this.topSeason);
-	}
+		// topSeason()
+		// {
+		// 	return this.$store.getters.playerTopSeason(this.player);
+		// },
+		// seasonData()
+		// {
+		// 	return this.$store.getters.seasonData(this.player, this.season);
+		// }
+	},
+	// methods:
+	// {
+	// 	setSeason(targetVal)
+	// 	{
+	// 		if(targetVal >= 1 && targetVal <= this.topSeason)
+	// 		{
+	// 			this.season = targetVal;
+	// 		}
+	// 	}
+	// },
+	// mounted()
+	// {
+	// 	this.maxSeason = this.topSeason;
+	// 	this.setSeason(this.topSeason);
+	// }
 }
 </script>
 
