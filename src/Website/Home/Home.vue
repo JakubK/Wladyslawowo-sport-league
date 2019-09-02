@@ -50,10 +50,10 @@ import Sidebar from "./Sidebar/Sidebar"
 import Slider from "./Slider/Slider";
 import gql from 'graphql-tag'
 
-import topPlayers from '../../GraphQL/Queries/topPlayers.graphql'
-import topEvents from '../../GraphQL/Queries/topEvents.graphql'
-import topNews from '../../GraphQL/Queries/topNews.graphql'
-import topSettlements from '../../GraphQL/Queries/topSettlements.graphql'
+import topPlayers from '../../GraphQL/Queries/Home/topPlayers.graphql'
+import topEvents from '../../GraphQL/Queries/Home/topEvents.graphql'
+import topNews from '../../GraphQL/Queries/Home/topNews.graphql'
+import topSettlements from '../../GraphQL/Queries/Home/topSettlements.graphql'
 
 export default {
   name: "Home",
