@@ -15,7 +15,7 @@
 					</tr>
 					</thead>
 					<tbody class="table-body">
-					<tr v-for="(player, index) in players" :key="index" @click="$router.push(`/players/${player.id}`)" :aria-label="player.name" :title="player.name">
+					<tr v-for="(player, index) in playersByScore" :key="index" @click="$router.push(`/players/${player.id}`)" :aria-label="player.name" :title="player.name">
 						<th>{{index +1}}</th>
 						<th>{{player.name}}</th>
 						<th>{{ player.settlement }}</th>
@@ -30,12 +30,13 @@
 </template>
 
 <script>
-
+  import playersByScore from '../../GraphQL/Queries/Players/playersByScore.graphql'
 	export default {
 		name: "Players",
-		computed: {
-			players() {
-				return this.$store.getters.playersByScore;
+		apollo:
+		{
+			playersByScore: {
+				query: playersByScore
 			}
 		}
 	}
