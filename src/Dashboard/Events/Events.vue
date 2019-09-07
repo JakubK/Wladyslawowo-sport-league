@@ -19,8 +19,8 @@
           </tr>
           </thead>
           <transition-group tag="tbody" name="fade">
-            <tr v-for="(event) in events" :key="event.id">
-              <th>{{event.index}}</th>
+            <tr v-for="(event, index) in events" :key="event.id">
+              <th>{{index}}</th>
               <th>{{event.name}}</th>
               <th>{{event.date}}</th>
               <th>
@@ -47,6 +47,8 @@
 </template>
 
 <script>
+import events from '../../GraphQL/Queries/Dashboard/events.graphql'
+import gql from 'graphql-tag'
   export default {
     name: "Events",
     data() {
@@ -56,26 +58,14 @@
         pageSize: 8,
       }
     },
+    apollo:
+    {
+      events: events
+    },
     computed: {
-      events() {
-        for ( let i = 0; i <= this.data.length; i++) {
-          this.data.forEach(item => {
-            item["index"] = (i++) + 1;
-          });
-        }
-
-        return this.data.filter((row, index) => {
-          let start = (this.currentPage - 1) * this.pageSize;
-          let end = this.currentPage * this.pageSize;
-
-          if (index >= start && index < end) {
-            return true;
-          }
-        });
-      },
       pages() {
         return Math.ceil(this.data.length / this.pageSize);
-      },
+      }
     },
     created() {
       this.data = this.$store.getters.events;

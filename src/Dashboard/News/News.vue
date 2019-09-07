@@ -18,8 +18,8 @@
           </tr>
           </thead>
           <transition-group tag="tbody" name="fade">
-            <tr v-for="news in newsList" :key="news.id">
-              <th>{{news.index}}</th>
+            <tr v-for="(news, index) in newses" :key="news.id">
+              <th>{{index}}</th>
               <th>{{news.name}}</th>
               <th>{{news.date}}</th>
               <th>
@@ -48,6 +48,9 @@
 
 <script>
 
+import newses from '../../GraphQL/Queries/Dashboard/newses.graphql'
+import gql from 'graphql-tag'
+
 export default {
   name: "News",
   data() {
@@ -57,24 +60,11 @@ export default {
       newsData: []
     }
   },
+  apollo:
+  {
+    newses: newses
+  },
   computed: {
-    newsList() {
-      //Add dynamically updated index for each element in array
-      for ( let i = 0; i <= this.newsData.length; i++) {
-        this.newsData.forEach(item => {
-          item["index"] = (i++) + 1;
-        });
-      }
-
-      return this.newsData.filter((row, index) => {
-        let start = (this.currentPage - 1) * this.pageSize;
-        let end = this.currentPage * this.pageSize;
-
-        if (index >= start && index < end) {
-          return true;
-        }
-      });
-    },
     pages() {
       return Math.ceil(this.newsData.length / this.pageSize);
     }

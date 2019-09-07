@@ -18,10 +18,10 @@
           </tr>
           </thead>
           <transition-group tag="tbody" name="fade">
-            <tr v-for="(player) in players" :key="player.id">
-              <th>{{player.index}}</th>
+            <tr v-for="(player, index) in players" :key="player.id">
+              <th>{{index}}</th>
               <th>{{player.name}}</th>
-              <th>{{player.settlement}}</th>
+              <th>{{player.settlementName}}</th>
               <th>
                 <div class="table-panel-buttons">
                   <button class="button" type="button" @click="updatePlayer(player)" aria-label="Edytuj" title="Edytuj">
@@ -50,7 +50,8 @@
 <script>
 
 import router from "@/Router/index";
-
+import players from '../../GraphQL/Queries/Dashboard/players.graphql'
+import gql from 'graphql-tag'
 export default {
   name: "Players",
   data() {
@@ -60,24 +61,11 @@ export default {
       pageSize: 8,
     }
   },
+  apollo:
+  {
+    players: players
+  },
   computed: {
-    players() {
-      //Add dynamically updated index for each element in array
-      for ( let i = 0; i <= this.data.length; i++) {
-        this.data.forEach(item => {
-          item["index"] = (i++) + 1;
-        });
-      }
-
-      return this.data.filter((row, index) => {
-        let start = (this.currentPage - 1) * this.pageSize;
-        let end = this.currentPage * this.pageSize;
-
-        if (index >= start && index < end) {
-          return true;
-        }
-      });
-    },
     pages() {
       return Math.ceil(this.data.length / this.pageSize);
     },
