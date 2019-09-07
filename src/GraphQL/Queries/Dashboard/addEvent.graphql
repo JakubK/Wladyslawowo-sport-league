@@ -1,0 +1,10 @@
+mutation addEvent($name: String!, $description: String, $date: Date)
+{
+    addEvent(name: $name, description: $description, date: $date)
+    {
+        id
+        name
+        date
+        description
+    }
+}
