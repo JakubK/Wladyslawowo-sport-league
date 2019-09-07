@@ -61,7 +61,7 @@ export default {
   },
   computed: {
     pages() {
-      return Math.ceil(this.settlementsList.length / this.pageSize);
+      return Math.ceil(this.settlements.length / this.pageSize);
     },
   },
   methods: {
