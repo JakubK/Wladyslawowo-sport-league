@@ -122,6 +122,8 @@
 </template>
 
 <script>
+import addEvent from '../../../GraphQL/Queries/Dashboard/addEvent.graphql'
+
 export default {
   name: "AddEvent",
   data() {
@@ -130,8 +132,8 @@ export default {
         name: '',
         description: '',
         date: '',
-        players: [],
-        images: [],
+        //players: [],
+        //images: [],
         season: '1'
       },
       currentPlayer: {
@@ -156,8 +158,17 @@ export default {
       const valid = await this.$validator.validateAll();
 
       if (valid) {
-        this.$store.dispatch('addEvent', this.event);
-
+        //this.$store.dispatch('addEvent', this.event);
+        this.event.images = undefined;
+        this.$apollo.mutate({
+          mutation: addEvent,
+          variables:{
+            name: this.event.name,
+            date: this.event.date,
+            description: this.event.descritpion
+          }
+        });
+        console.log(this.event);
         this.sentProperly = true;
         this.alertMessage = "Pomyślnie dodano nową imprezę"
         this.$validator.reset();
