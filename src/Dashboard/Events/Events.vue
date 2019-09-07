@@ -48,6 +48,7 @@
 
 <script>
 import events from '../../GraphQL/Queries/Dashboard/events.graphql'
+import deleteEvent from '../../GraphQL/Queries/Dashboard/deleteEvent.graphql'
 import gql from 'graphql-tag'
   export default {
     name: "Events",
@@ -72,7 +73,12 @@ import gql from 'graphql-tag'
     },
     methods: {
       removeEvent(event) {
-        this.$store.dispatch('removeEvent', event);
+        this.$apollo.mutate({
+          mutation: deleteEvent,
+          variables:{
+            id: event.id
+          }
+        });
       },
       updateEvent(event) {
         this.$router.push({name: 'UpdateEvent', params: {id: event.id}});
