@@ -1,0 +1,17 @@
+query getEvent($id: Int!)
+{
+  event(id: $id)
+  {
+    id,
+    name,
+    description,
+    date,
+    season,
+    scores: players
+    {
+      id,
+      name,
+      points
+    }
+  }
+}
