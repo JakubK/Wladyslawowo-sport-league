@@ -84,9 +84,9 @@
                 <th>
                   <div class="control">
                     <div class="select">
-                      <select v-model="currentPlayer.name">
+                      <select @change="switchPlayerId($event)">
                         <option value="" disabled selected>Wybierz zawodnika</option>
-                        <option v-for="player in players" :key="player.id">{{player.name}}</option>
+                        <option v-for="player in players" :value="player.id" :key="player.id">{{player.name}}</option>
                       </select>
                     </div>
                   </div>
@@ -104,7 +104,7 @@
                   </div>
                 </th>
               </tr>
-              <tr v-for="(player, index) in event.players" :key="index">
+              <tr v-for="(player, index) in event.scores" :key="index">
                 <th>{{index + 1}}</th>
                 <th>{{player.name}}</th>
                 <th>{{player.points}} pkt</th>
@@ -128,9 +128,16 @@
 
 <script>
 
+import getEvent from '../../../GraphQL/Queries/Dashboard/getEvent.graphql'
+import updateEvent from '../../../GraphQL/Queries/Dashboard/updateEvent.graphql'
+import players from '../../../GraphQL/Queries/Dashboard/players.graphql'
 export default {
   name: "UpdateEvent",
   props: ['id'],
+  apollo:
+  {
+    players: players
+  },
   data() {
     return {
       event: {
@@ -144,7 +151,7 @@ export default {
       imagesToRemove: [],
       files: [],
       currentPlayer: {
-        name: '',
+        id: 0,
         points: ''
       },
       images: [],
@@ -153,34 +160,41 @@ export default {
       alertTimeoutId: null
     }
   },
-  computed: {
-    players() {
-      return this.$store.getters.players;
-    }
-  },
   methods: {
+    switchPlayerId(e)
+    {
+      this.currentPlayer.id = e.target.value;
+    },
     async handleSubmit() {
       const valid = await this.$validator.validateAll();
-
       if (valid) {
         this.event.files = this.files;
-        this.$store.dispatch('updateEvent',this.event);
+        this.event.id = this.$route.params.id
+        this.$apollo.mutate({
+          mutation: updateEvent,
+          variables:
+          {
+            ...this.event
+          }
+        })
         this.goBack();
       }
     },
     addPlayer() {
       const player = {
         name: this.currentPlayer.name,
-        points: this.currentPlayer.points
+        points: this.currentPlayer.points,
+        playerId: this.currentPlayer.id
       };
 
-      if(this.event.players === undefined)
-        this.event.players = [];
+      if(this.event.scores === undefined)
+        this.event.scores = [];
 
-      this.event.players.push(player);
+      console.log(player);
+      this.event.scores.push(player);
     },
     deletePlayer(index) {
-      this.event.players.splice(index, 1);
+      this.event.scores.splice(index, 1);
       this.event.settlementScores.splice(index, 1);
     },
     goBack() {
@@ -218,9 +232,16 @@ export default {
       this.event.imageUrls.splice(index,1);
     }
   },
-  created() {
-    const event = this.$store.getters.event(this.$route.params.id);
-    this.event = event;
+    created() {
+    // const event = this.$store.getters.event(this.$route.params.id);
+    // this.event = event;
+    this.$apollo.query({
+      query: getEvent,
+      variables:
+      {
+        id: this.$route.params.id
+      }
+    }).then(result => this.event = result.data.event);
   }
 }
 
