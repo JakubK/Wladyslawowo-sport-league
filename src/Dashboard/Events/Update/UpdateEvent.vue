@@ -84,7 +84,7 @@
                 <th>
                   <div class="control">
                     <div class="select">
-                      <select @change="switchPlayerId($event)">
+                      <select v-model="currentPlayer.name" @change="switchPlayerId($event)">
                         <option value="" disabled selected>Wybierz zawodnika</option>
                         <option v-for="player in players" :value="player.id" :key="player.id">{{player.name}}</option>
                       </select>
@@ -182,7 +182,7 @@ export default {
     },
     addPlayer() {
       const player = {
-        name: this.currentPlayer.name,
+        name: this.players.filter(x => x.id == this.currentPlayer.id)[0].name,
         points: this.currentPlayer.points,
         playerId: this.currentPlayer.id
       };
@@ -190,12 +190,11 @@ export default {
       if(this.event.scores === undefined)
         this.event.scores = [];
 
-      console.log(player);
       this.event.scores.push(player);
     },
     deletePlayer(index) {
       this.event.scores.splice(index, 1);
-      this.event.settlementScores.splice(index, 1);
+      // this.event.settlementScores.splice(index, 1);
     },
     goBack() {
       this.$store.dispatch('closeModal');
