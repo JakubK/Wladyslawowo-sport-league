@@ -79,9 +79,9 @@
                 <th>
                   <div class="control">
                     <div class="select">
-                      <select v-model="currentPlayer.name">
+                      <select v-model="currentPlayer.name" @change="switchPlayerId($event)">
                         <option value="" disabled selected>Wybierz zawodnika</option>
-                        <option v-for="player in players" :key="player.id">{{player.name}}</option>
+                        <option :value="player.id" v-for="player in players" :key="player.id">{{player.name}}</option>
                       </select>
                     </div>
                   </div>
@@ -99,7 +99,7 @@
                   </div>
                 </th>
               </tr>
-              <tr v-for="(player, index) in event.players" :key="index">
+              <tr v-for="(player, index) in event.scores" :key="index">
                 <th>{{index + 1}}</th>
                 <th>{{player.name}}</th>
                 <th>{{player.points}} pkt</th>
@@ -123,6 +123,7 @@
 
 <script>
 import addEvent from '../../../GraphQL/Queries/Dashboard/addEvent.graphql'
+import players from '../../../GraphQL/Queries/Dashboard/players.graphql'
 
 export default {
   name: "AddEvent",
@@ -132,11 +133,12 @@ export default {
         name: '',
         description: '',
         date: '',
-        //players: [],
+        scores: [],
         //images: [],
         season: '1'
       },
       currentPlayer: {
+        id: 0,
         name: '',
         points: ''
       },
@@ -146,12 +148,19 @@ export default {
       alertTimeoutId: null
     }
   },
-  computed: {
-    players() {
-      return this.$store.getters.players;
-    }
+  // computed: {
+  //   players() {
+  //     return this.$store.getters.players;
+  //   }
+  // },
+  apollo:{
+    players: players
   },
   methods: {
+    switchPlayerId(e)
+    {
+      this.currentPlayer.id = e.target.value;
+    },
     async handleSubmit() {
       clearTimeout(this.alertTimeoutId);
 
@@ -163,12 +172,9 @@ export default {
         this.$apollo.mutate({
           mutation: addEvent,
           variables:{
-            name: this.event.name,
-            date: this.event.date,
-            description: this.event.descritpion
+            ...this.event
           }
         });
-        console.log(this.event);
         this.sentProperly = true;
         this.alertMessage = "Pomyślnie dodano nową imprezę"
         this.$validator.reset();
@@ -183,15 +189,16 @@ export default {
     },
     addPlayer() {
       const player = {
-        name: this.currentPlayer.name,
-        points: this.currentPlayer.points
+        name: this.players.filter(x => x.id == this.currentPlayer.id)[0].name,
+        points: this.currentPlayer.points,
+        playerId: this.currentPlayer.id
       };
 
-      if (this.event.players === undefined) {
-        this.event.players = [];
+      if (this.event.scores === undefined) {
+        this.event.scores = [];
       }
 
-      this.event.players.push(player);
+      this.event.scores.push(player);
     },
     deletePlayer(index) {
       this.event.players.splice(index, 1);

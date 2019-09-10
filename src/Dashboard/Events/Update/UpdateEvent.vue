@@ -104,10 +104,10 @@
                   </div>
                 </th>
               </tr>
-              <tr v-for="(player, index) in event.scores" :key="index">
+              <tr v-for="(score, index) in event.scores" :key="index">
                 <th>{{index + 1}}</th>
-                <th>{{player.name}}</th>
-                <th>{{player.points}} pkt</th>
+                <th>{{score.name }}</th>
+                <th>{{score.points}} pkt</th>
                 <th>
                   <div class="buttons">
                     <button class="button is-danger is-5" @click="deletePlayer(index)">Usuń</button>
