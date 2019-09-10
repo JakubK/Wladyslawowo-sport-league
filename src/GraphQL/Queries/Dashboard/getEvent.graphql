@@ -7,10 +7,10 @@ query getEvent($id: Int!)
     description,
     date,
     season,
-    scores: players
+    scores
     {
-      id,
-      name,
+      playerId,
+      name: playerName,
       points
     }
   }
