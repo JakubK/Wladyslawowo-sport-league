@@ -134,7 +134,6 @@ export default {
         description: '',
         date: '',
         scores: [],
-        //images: [],
         season: '1'
       },
       currentPlayer: {
@@ -165,16 +164,22 @@ export default {
       clearTimeout(this.alertTimeoutId);
 
       const valid = await this.$validator.validateAll();
-
       if (valid) {
-        //this.$store.dispatch('addEvent', this.event);
-        this.event.images = undefined;
-        this.$apollo.mutate({
-          mutation: addEvent,
-          variables:{
-            ...this.event
-          }
-        });
+        // this.$store.dispatch('addEvent', this.event);
+        let formData = new FormData();
+        formData.append("graphql", `{ "query": "${addEvent.loc.source.body}", "variables": {
+          "name" : "${this.event.name}"
+        }}`)
+        for(let i = 0;i < this.images.length;i++)
+        {
+          formData.append(i, this.images[i]);
+        }
+
+        fetch("http://localhost:5000/api/graphql", {
+          method: 'post',
+          body: formData
+        });   
+
         this.sentProperly = true;
         this.alertMessage = "Pomyślnie dodano nową imprezę"
         this.$validator.reset();
@@ -211,7 +216,7 @@ export default {
       this.alertMessage = null;
     },
     onFileSelected() {
-      this.event.images.push(event.target.files[0]);
+      this.images.push(event.target.files[0]);
 
       let files = event.target.files || event.dataTransfer.files;
       if (!files.length)
@@ -224,13 +229,13 @@ export default {
       let vm = this;
 
       reader.onload = (e) => {
-        vm.images.push(e.target.result);
+        //vm.images.push(e.target.result);
       };
       reader.readAsDataURL(file);
     },
     removeImage(index) {
       this.images.splice(index,1);
-      this.event.images.splice(index,1);
+      this.images.splice(index,1);
     }
   }
 }
