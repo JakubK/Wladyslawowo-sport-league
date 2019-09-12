@@ -54,8 +54,8 @@
               </label>
             </div>
           </div>
-          <div class="attachments" v-if="images">
-            <div @click="removeImage(index)" class="attachments-image" v-for="(image,index) in images" :key="index">
+          <div class="attachments" v-if="displayImages">
+            <div @click="removeImage(index)" class="attachments-image" v-for="(image,index) in displayImages" :key="index">
               <img :src="image"/>
             </div>
           </div>
@@ -142,6 +142,7 @@ export default {
         points: ''
       },
       images: [],
+      displayImages: [],
       alertMessage: null,
       sentProperly: false,
       alertTimeoutId: null
@@ -229,13 +230,13 @@ export default {
       let vm = this;
 
       reader.onload = (e) => {
-        //vm.images.push(e.target.result);
+        vm.displayImages.push(e.target.result);
       };
       reader.readAsDataURL(file);
     },
     removeImage(index) {
       this.images.splice(index,1);
-      this.images.splice(index,1);
+      this.displayImages.splice(index,1);
     }
   }
 }
