@@ -1,6 +1,6 @@
-mutation addEvent($name: String!, $description: String, $date: Date, $season: Int, $scores: [AddScore])
+mutation addEvent($name: String!, $description: String, $date: Date, $season: Int, $scores: [AddScore], $links: [String])
 {
-    addEvent(name: $name, description: $description, date: $date,season: $season, scores: $scores)
+    addEvent(name: $name, description: $description, date: $date,season: $season, scores: $scores, links: $links)
     {
         id
     }
