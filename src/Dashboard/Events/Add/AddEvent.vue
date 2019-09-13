@@ -168,9 +168,10 @@ export default {
       if (valid) {
         // this.$store.dispatch('addEvent', this.event);
         let formData = new FormData();
-        formData.append("graphql", `{ "query": "${addEvent.loc.source.body}", "variables": {
-          "name" : "${this.event.name}"
-        }}`)
+        formData.append("graphql", `{ "query": "${addEvent.loc.source.body}", "variables": 
+         ${JSON.stringify(this.event)}
+        }`);
+
         for(let i = 0;i < this.images.length;i++)
         {
           formData.append(i, this.images[i]);
