@@ -122,7 +122,7 @@ export default {
       }, 3000);
     },
     onFileSelected(event) {
-      this.news.img = event.target.files[0];
+      this.image = event.target.files[0];
       let files = event.target.files || event.dataTransfer.files;
 
       if (!files.length) {
