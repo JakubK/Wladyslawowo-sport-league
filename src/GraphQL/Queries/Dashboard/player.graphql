@@ -5,6 +5,7 @@ query player($id: Int!)
     id,
     name,
     media,
-    settlementName
+    settlementName,
+    settlementId
   }
 }

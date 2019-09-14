@@ -23,7 +23,7 @@
               <label class="label" for="settlement">Dzielnica lub wieś</label>
               <div class="control">
                 <div class="select">
-                  <select id="settlement" @change="switchSettlementId($event)" v-validate="'required'" data-vv-delay="250" name="settlement" placeholder="Osiedle/Dzielnica" v-model="player.settlementName">
+                  <select id="settlement" v-model="player.settlementId" @change="switchSettlementId($event)" v-validate="'required'" data-vv-delay="250" name="settlement">
                     <option :value="settlement.id" v-for="settlement in settlements" :key="settlement.id">{{settlement.name}}</option>
                   </select>
                 </div>
