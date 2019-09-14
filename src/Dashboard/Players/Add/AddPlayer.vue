@@ -47,8 +47,8 @@
                 </label>
               </div>
             </div>
-            <div v-if="image">
-              <img class="attachment-image" :src="image"/>
+            <div v-if="displayImage">
+              <img class="attachment-image" :src="displayImage"/>
             </div>
           </form>
         </section>
@@ -62,20 +62,25 @@
 </template>
 
 <script>
+import settlements from '../../../GraphQL/Queries/Dashboard/settlements.graphql'
+import addPlayer from '../../../GraphQL/Queries/Dashboard/addPlayer.graphql'
+import gql from 'graphql-tag'
+
 export default {
   name: "AddPlayer",
+  apollo:{
+    settlements: settlements
+  },
   data() {
     return {
       player: {
         name: "",
         settlement: "",
         settlementId: '',
-        img: "",
-        extension: "",
-        imageData: ""
       },
       settlement: '',
       image: '',
+      displayImage: '',
       alertMessage: null,
       sentProperly: false,
       alertTimeoutId: null
@@ -89,7 +94,19 @@ export default {
       if (valid) {
         this.player.settlement = this.settlement;
         this.player.settlementId = this.settlementId(this.player.settlement);
-        this.$store.dispatch('addPlayer', this.player);
+        
+        //this.$store.dispatch('addPlayer', this.player);
+        let formData = new FormData();
+        formData.append("graphql", `{ "query": "${addPlayer.loc.source.body}", "variables": 
+         ${JSON.stringify(this.player)}
+        }`);
+
+        formData.append(0,this.image);
+
+        fetch("http://localhost:5000/api/graphql", {
+          method: 'post',
+          body: formData
+        });   
 
         for (let key in this.player) {
           this.player[key] = '';
@@ -108,7 +125,7 @@ export default {
       }, 3000);
     },
     onFileSelected(event) {
-      this.player.img = event.target.files[0];
+      this.image = event.target.files[0];
 
       let files = event.target.files || event.dataTransfer.files;
 
@@ -124,7 +141,7 @@ export default {
       let vm = this;
 
       reader.onload = (e) => {
-        vm.image = e.target.result;
+        vm.displayImage = e.target.result;
       };
 
       reader.readAsDataURL(file);
@@ -144,9 +161,9 @@ export default {
     },
   },
   computed: {
-    settlements() {
-      return this.$store.getters.settlements;
-    }
+    // settlements() {
+    //   return this.$store.getters.settlements;
+    // }
   },
 }
 
