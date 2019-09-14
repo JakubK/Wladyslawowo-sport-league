@@ -56,11 +56,11 @@
               </label>
             </div>
           </div>
-          <div class="attachments" v-if="images || event.imageUrls">
-            <div @click="removeImage(index)" class="attachments-image" v-for="(image,index) in images" :key="index">
+          <div class="attachments" v-if="displayImages || event.imageUrls">
+            <div @click="removeImage(index)" class="attachments-image" v-for="(image,index) in displayImages" :key="index">
               <img :src="image"/>
             </div>
-            <div @click="removeUrl(index)" class="attachments-image" v-for="(url,index) in event.imageUrls" :key="index + 'n'">
+            <div @click="removeUrl(index)" class="attachments-image" v-for="(url,index) in event.links" :key="index + 'n'">
               <img :src="url"/>
             </div>
           </div>
@@ -155,6 +155,7 @@ export default {
         points: ''
       },
       images: [],
+      displayImages: [],
       alertMessage: null,
       sentProperly: false,
       alertTimeoutId: null
@@ -170,13 +171,22 @@ export default {
       if (valid) {
         this.event.files = this.files;
         this.event.id = this.$route.params.id
-        this.$apollo.mutate({
-          mutation: updateEvent,
-          variables:
-          {
-            ...this.event
-          }
-        })
+
+        let formData = new FormData();
+        formData.append("graphql", `{ "query": "${updateEvent.loc.source.body}", "variables": 
+         ${JSON.stringify(this.event)}
+        }`);
+
+        for(let i = 0;i < this.images.length;i++)
+        {
+          formData.append(i, this.images[i]);
+        }
+
+        fetch("http://localhost:5000/api/graphql", {
+          method: 'post',
+          body: formData
+        });
+
         this.goBack();
       }
     },
@@ -203,12 +213,11 @@ export default {
       this.alertMessage = null;
     },
     onFileSelected() {
-      let files = event.target.files || event.dataTransfer.files;
-      this.files.push(files[0]);
+      this.images.push(event.target.files[0]);
 
-      if (!files.length) {
+      let files = event.target.files || event.dataTransfer.files;
+      if (!files.length)
         return;
-      }
 
       this.createImage(files[0]);
     },
@@ -218,29 +227,31 @@ export default {
       let vm = this;
 
       reader.onload = (e) => {
-        vm.images.push(e.target.result);
+        vm.displayImages.push(e.target.result);
       };
 
       reader.readAsDataURL(file);
     },
     removeImage(index) {
       this.images.splice(index,1);
-      this.files.splice(index,1);
+      this.displayImages.splice(index,1);
     },
     removeUrl(index) {
-      this.event.imageUrls.splice(index,1);
+      this.event.links.splice(index,1);
+      this.displayImages.splice(index,1);
     }
   },
     created() {
-    // const event = this.$store.getters.event(this.$route.params.id);
-    // this.event = event;
     this.$apollo.query({
       query: getEvent,
       variables:
       {
         id: this.$route.params.id
       }
-    }).then(result => this.event = result.data.event);
+    }).then(result => {
+     this.event = result.data.event;
+     this.event.links = this.event.medias;
+    });
   }
 }
 
