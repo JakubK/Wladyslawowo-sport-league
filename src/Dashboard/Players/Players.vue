@@ -51,6 +51,8 @@
 
 import router from "@/Router/index";
 import players from '../../GraphQL/Queries/Dashboard/players.graphql'
+import deletePlayer from '../../GraphQL/Queries/Dashboard/deletePlayer.graphql'
+
 import gql from 'graphql-tag'
 export default {
   name: "Players",
@@ -75,7 +77,13 @@ export default {
   },
   methods: {
     removePlayer(player) {
-      this.$store.dispatch('removePlayer', player);
+      // this.$store.dispatch('removePlayer', player);
+      this.$apollo.mutate({
+        mutation: deletePlayer,
+        variables:{
+          id: player.id
+        }
+      });
     },
     updatePlayer(player) {
       router.push({name: 'UpdatePlayer', params: {id: player.id}});

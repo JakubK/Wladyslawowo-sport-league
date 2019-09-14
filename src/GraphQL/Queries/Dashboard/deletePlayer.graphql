@@ -1,0 +1,7 @@
+mutation deletePlayer($id: Int!)
+{
+  deletePlayer(id:$id)
+  {
+    id
+  }
+}
