@@ -1,0 +1,7 @@
+mutation updatePlayer($id: Int!, $name: String!,$settlementId: Int!,  $links: [String])
+{
+  updatePlayer(id: $id, name: $name,settlementId: $settlementId, links: $links)
+  {
+    id
+  }
+}

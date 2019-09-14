@@ -1,0 +1,10 @@
+query player($id: Int!)
+{
+  player(id: $id)
+  {
+    id,
+    name,
+    media,
+    settlementName
+  }
+}
