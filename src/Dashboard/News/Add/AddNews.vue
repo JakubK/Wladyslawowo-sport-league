@@ -65,6 +65,8 @@
 </template>
 
 <script>
+import addNews from '../../../GraphQL/Queries/Dashboard/addNews.graphql'
+
 export default {
   name: "AddNews",
   data() {
@@ -73,9 +75,9 @@ export default {
         name: "",
         description: "",
         date: null,
-        img: ""
       },
       image: '',
+      displayImage: '',
       alertMessage: null,
       sentProperly: false,
       alertTimeoutId: null
@@ -87,7 +89,19 @@ export default {
       const valid = await this.$validator.validateAll();
 
       if (valid) {
-        this.$store.dispatch('addNews', this.news);
+
+        //this.$store.dispatch('addNews', this.news);
+        let formData = new FormData();
+        formData.append("graphql", `{ "query": "${addNews.loc.source.body}", "variables": 
+         ${JSON.stringify(this.news)}
+        }`);
+
+        formData.append(0,this.image);
+
+        fetch("http://localhost:5000/api/graphql", {
+          method: 'post',
+          body: formData
+        });   
 
         for (let key in this.news) {
           this.news[key] = '';

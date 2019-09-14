@@ -1,0 +1,7 @@
+mutation addNews($name: String!,$date: Date,$description: String,  $links: [String])
+{
+    addNews(name: $name,date: $date, description: $description, links: $links)
+    {
+        id
+    }
+}
