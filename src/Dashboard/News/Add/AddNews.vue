@@ -50,8 +50,8 @@
                 </label>
               </div>
             </div>
-            <div v-if="image">
-              <img class="attachment-image" :src="image"/>
+            <div v-if="displayImage">
+              <img class="attachment-image" :src="displayImage"/>
             </div>
           </form>
         </section>
@@ -137,7 +137,7 @@ export default {
       let vm = this;
 
       reader.onload = (e) => {
-        vm.image = e.target.result;
+        vm.displayImage = e.target.result;
       };
       reader.readAsDataURL(file);
     },
