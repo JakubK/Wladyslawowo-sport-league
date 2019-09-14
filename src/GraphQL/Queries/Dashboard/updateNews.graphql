@@ -1,0 +1,7 @@
+mutation updateNews($id: Int!, $name: String,$date: Date,$description: String,  $links: [String])
+{
+    updateNews(id: $id, name: $name,date: $date, description: $description, links: $links)
+    {
+        id
+    }
+}
