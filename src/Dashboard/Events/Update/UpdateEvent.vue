@@ -128,9 +128,10 @@
 
 <script>
 
-import getEvent from '../../../GraphQL/Queries/Dashboard/getEvent.graphql'
+import event from '../../../GraphQL/Queries/Dashboard/event.graphql'
 import updateEvent from '../../../GraphQL/Queries/Dashboard/updateEvent.graphql'
 import players from '../../../GraphQL/Queries/Dashboard/players.graphql'
+
 export default {
   name: "UpdateEvent",
   props: ['id'],
@@ -164,7 +165,7 @@ export default {
   methods: {
     switchPlayerId(e)
     {
-      this.currentPlayer.id = e.target.value;
+      this.player.settlementId = e.target.value;
     },
     async handleSubmit() {
       const valid = await this.$validator.validateAll();
@@ -243,7 +244,7 @@ export default {
   },
     created() {
     this.$apollo.query({
-      query: getEvent,
+      query: event,
       variables:
       {
         id: this.$route.params.id

@@ -1,4 +1,4 @@
-query getEvent($id: Int!)
+query event($id: Int!)
 {
   event(id: $id)
   {
