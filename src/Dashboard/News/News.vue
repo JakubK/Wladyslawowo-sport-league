@@ -49,6 +49,7 @@
 <script>
 
 import newses from '../../GraphQL/Queries/Dashboard/newses.graphql'
+import deleteNews from '../../GraphQL/Queries/Dashboard/deleteNews.graphql'
 import gql from 'graphql-tag'
 
 export default {
@@ -75,7 +76,13 @@ export default {
   },
   methods: {
     removeNews(news) {
-      this.$store.dispatch('removeNews',news);
+      //this.$store.dispatch('removeNews',news);
+      this.$apollo.mutate({
+        mutation: deleteNews,
+        variables:{
+          id: news.id
+        }
+      });
     },
     updateNews(news) {
       this.$router.push({name: 'UpdateNews', params: {id: news.id}});
