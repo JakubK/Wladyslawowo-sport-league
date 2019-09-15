@@ -1,0 +1,7 @@
+mutation deleteSettlement($id: Int!)
+{
+  deleteSettlement(id: $id)
+  {
+    id
+  }
+}

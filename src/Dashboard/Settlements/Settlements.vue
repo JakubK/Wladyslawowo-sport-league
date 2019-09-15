@@ -46,6 +46,8 @@
 
 <script>
 import settlements from '../../GraphQL/Queries/Dashboard/settlements.graphql'
+import deleteSettlement from '../../GraphQL/Queries/Dashboard/deleteSettlement.graphql'
+
 import gql from 'graphql-tag'
 export default {
   name: "Settlements",
@@ -66,7 +68,13 @@ export default {
   },
   methods: {
     removeSettlement(settlement) {
-      this.$store.dispatch('removeSettlement',settlement);
+      //this.$store.dispatch('removeSettlement',settlement);
+      this.$apollo.mutate({
+        mutation: deleteSettlement,
+        variables:{
+          id: settlement.id
+        }
+      });
     },
     updateSettlement(settlement) {
       this.$router.push({name: "UpdateSettlement", params: {id: settlement.id}});
