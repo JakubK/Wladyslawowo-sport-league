@@ -43,8 +43,8 @@
                 </label>
               </div>
             </div>
-            <div v-if="image">
-              <img class="attachment-image" :src="image"/>
+            <div v-if="displayImage">
+              <img class="attachment-image" :src="displayImage"/>
             </div>
           </form>
         </section>
@@ -58,6 +58,9 @@
 </template>
 
 <script>
+
+import addSettlement from '../../../GraphQL/Queries/Dashboard/addSettlement.graphql'
+
 export default {
   name: "AddSettlement",
   data() {
@@ -65,9 +68,9 @@ export default {
       settlement: {
         name: "",
         description: "",
-        img: ""
       },
       image: '',
+      displayImage: '',
       alertMessage: null,
       sentProperly: false,
       alertTimeoutId: null
@@ -82,7 +85,18 @@ export default {
 
       if (valid) 
       {
-        this.$store.dispatch('addSettlement', this.settlement);
+        // this.$store.dispatch('addSettlement', this.settlement);
+        let formData = new FormData();
+        formData.append("graphql", `{ "query": "${addSettlement.loc.source.body}", "variables": 
+         ${JSON.stringify(this.settlement)}
+        }`);
+
+        formData.append(0,this.image);
+
+        fetch("http://localhost:5000/api/graphql", {
+          method: 'post',
+          body: formData
+        });   
         for (let key in this.settlement) {
           this.settlement[key] = '';
         }
@@ -100,7 +114,7 @@ export default {
       }, 3000);
     },
     onFileSelected(event) {
-      this.settlement.img = event.target.files[0];
+      this.image = event.target.files[0];
 
       var files = event.target.files || event.dataTransfer.files;
       if (!files.length)
@@ -114,7 +128,7 @@ export default {
       var vm = this;
 
       reader.onload = (e) => {
-        vm.image = e.target.result;
+        vm.displayImage = e.target.result;
       };
       reader.readAsDataURL(file);
     },
