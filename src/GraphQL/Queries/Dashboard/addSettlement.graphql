@@ -1,0 +1,7 @@
+mutation addSettlement($name: String, $description: String, $links: [String])
+{
+    addSettlement(name: $name, description: $description, links: $links)
+    {
+        id
+    }
+}
