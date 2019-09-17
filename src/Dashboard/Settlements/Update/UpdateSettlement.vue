@@ -43,11 +43,11 @@
                 </label>
               </div>
             </div>
-             <div v-if="image">
-              <img class="attachment-image" :src="image"/>
+             <div v-if="displayImage">
+              <img class="attachment-image" :src="displayImage"/>
             </div>
-            <div v-else-if="settlement.imageUrl">
-              <img class="attachment-image" :src="settlement.imageUrl"/>
+            <div v-else-if="settlement.media">
+              <img class="attachment-image" :src="settlement.media"/>
             </div>
           </form>
         </section>
@@ -61,6 +61,9 @@
 </template>
 
 <script>
+import settlement from '../../../GraphQL/Queries/Dashboard/settlement.graphql'
+import updateSettlement from '../../../GraphQL/Queries/Dashboard/updateSettlement.graphql'
+
 export default {
   name: "UpdateSettlement",
   props: ['id'],
@@ -68,10 +71,10 @@ export default {
     return {
       settlement: {
         name: "",
-        description: "",
-        img: ""
+        description: ""
       },
       image: '',
+      displayImage: '',
       alertMessage: null,
       sentProperly: false,
       alertTimeoutId: null
@@ -80,11 +83,23 @@ export default {
   methods: {
     async handleSubmit()
     {
-      this.$store.dispatch('updateSettlement',this.settlement);
+      // this.$store.dispatch('updateSettlement',this.settlement);
+      let formData = new FormData();
+        formData.append("graphql", `{ "query": "${updateSettlement.loc.source.body}", "variables": 
+         ${JSON.stringify(this.settlement)}
+        }`);
+
+        formData.append(0,this.image);        
+
+        fetch("http://localhost:5000/api/graphql", {
+          method: 'post',
+          body: formData
+        });
+
       this.closeModal();
     },
     onFileSelected(event) {
-      this.settlement.img = event.target.files[0];
+      this.image = event.target.files[0];
 
       var files = event.target.files || event.dataTransfer.files;
       if (!files.length)
@@ -98,7 +113,7 @@ export default {
       var vm = this;
 
       reader.onload = (e) => {
-        vm.image = e.target.result;
+        vm.displayImage = e.target.result;
       };
       reader.readAsDataURL(file);
     },
@@ -112,8 +127,14 @@ export default {
   },
   mounted()
   {
-    var settlement = this.$store.getters.settlement(this.$route.params.id);
-    this.settlement = settlement[0];
+    this.$apollo.query({
+      query: settlement,
+      variables:{
+        id: this.$route.params.id
+      }
+    }).then(result => {
+      this.settlement = result.data.settlement;
+    });
   }
 }
 
