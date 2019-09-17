@@ -1,0 +1,7 @@
+mutation updateSettlement($id: Int!, $name: String!,$description: String!, $links: [String])
+{
+  updateSettlement(id: $id, name: $name,description: $description, links: $links)
+  {
+    id
+  }
+}

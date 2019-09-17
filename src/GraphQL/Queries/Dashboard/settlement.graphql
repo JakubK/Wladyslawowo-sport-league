@@ -1,0 +1,10 @@
+query settlement($id: Int!)
+{
+  settlement(id: $id)
+  {
+    id,
+    name,
+    media,
+    description
+  }
+}
