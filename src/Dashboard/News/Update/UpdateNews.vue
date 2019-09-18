@@ -50,11 +50,11 @@
                 </label>
               </div>
             </div>
-            <div v-if="image">
-              <img class="attachment-image" :src="image"/>
+            <div v-if="displayImage">
+              <img class="attachment-image" :src="displayImage"/>
             </div>
-            <div v-else-if="news.imageUrl">
-              <img class="attachment-image" :src="news.imageUrl"/>
+            <div v-else-if="news.media">
+              <img class="attachment-image" :src="news.media"/>
             </div>
           </form>
         </section>
@@ -68,6 +68,9 @@
 </template>
 
 <script>
+import news from '../../../GraphQL/Queries/Dashboard/news.graphql'
+import updateNews from '../../../GraphQL/Queries/Dashboard/updateNews.graphql'
+
 export default {
   name: "UpdateNews",
   props: ['id'],
@@ -77,9 +80,9 @@ export default {
         name: "",
         description: "",
         date: null,
-        img: ""
       },
       image: '',
+      displayImage: '',
       alertMessage: null,
       sentProperly: false,
       alertTimeoutId: null
@@ -90,12 +93,23 @@ export default {
       const valid = await this.$validator.validateAll();
 
       if (valid) {
-        this.$store.dispatch('updateNews', this.news);
+        //this.$store.dispatch('updateNews', this.news);
+        let formData = new FormData();
+        formData.append("graphql", `{ "query": "${updateNews.loc.source.body}", "variables": 
+         ${JSON.stringify(this.news)}
+        }`);
+
+        formData.append(0,this.image);        
+
+        fetch("http://localhost:5000/api/graphql", {
+          method: 'post',
+          body: formData
+        });
         this.closeModal();
       }
     },
     onFileSelected(event) {
-      this.news.img = event.target.files[0];
+      this.image = event.target.files[0];
       let files = event.target.files || event.dataTransfer.files;
 
       if (!files.length) {
@@ -110,7 +124,7 @@ export default {
       let vm = this;
 
       reader.onload = (e) => {
-        vm.image = e.target.result;
+        vm.displayImage = e.target.result;
       };
 
       reader.readAsDataURL(file);
@@ -120,8 +134,17 @@ export default {
     },
   },
   created() {
-    const news = this.$store.getters.briefNewsById(this.$route.params.id);
-    this.news = news;
+   // const news = this.$store.getters.briefNewsById(this.$route.params.id);
+    //this.news = news;
+    this.$apollo.query({
+      query: news,
+      variables:
+      {
+        id: this.$route.params.id
+      }
+    }).then(result => {
+     this.news = result.data.newse;
+    });
   }
 }
 

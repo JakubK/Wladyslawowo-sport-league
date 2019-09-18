@@ -1,0 +1,7 @@
+mutation updateEvent($id: Int!, $name: String, $description: String, $season: Int, $date: Date,$links: [String], $scores: [AddScore])
+{
+  updateEvent(id: $id, name: $name, description: $description, date: $date, season: $season,links: $links, scores: $scores)
+  {
+    id
+  }
+}

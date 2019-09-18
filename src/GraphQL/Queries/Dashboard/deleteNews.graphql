@@ -1,0 +1,7 @@
+mutation deleteNews($id: Int!)
+{
+  deleteNews(id:$id)
+  {
+    id
+  }
+}

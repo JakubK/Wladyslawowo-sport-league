@@ -23,8 +23,8 @@
               <label class="label" for="settlement">Dzielnica lub wieś</label>
               <div class="control">
                 <div class="select">
-                  <select id="settlement" v-validate="'required'" data-vv-delay="250" name="settlement" placeholder="Osiedle/Dzielnica" v-model="settlement">
-                    <option v-for="settlement in settlements" :key="settlement.id">{{settlement.name}}</option>
+                  <select id="settlement" v-model="player.settlementId" @change="switchSettlementId($event)" v-validate="'required'" data-vv-delay="250" name="settlement">
+                    <option :value="settlement.id" v-for="settlement in settlements" :key="settlement.id">{{settlement.name}}</option>
                   </select>
                 </div>
                 <transition name="fade-left">
@@ -46,11 +46,11 @@
                 </label>
               </div>
             </div>
-            <div v-if="image">
-              <img class="attachment-image" :src="image"/>
+            <div v-if="displayImage">
+              <img class="attachment-image" :src="displayImage"/>
             </div>
-            <div v-else-if="player.imageUrl">
-              <img class="attachment-image" :src="player.imageUrl"/>
+            <div v-else-if="player.media">
+              <img class="attachment-image" :src="player.media"/>
             </div>
           </form>
         </section>
@@ -64,19 +64,22 @@
 </template>
 
 <script>
+import settlements from '../../../GraphQL/Queries/Dashboard/settlements.graphql'
+import player from '../../../GraphQL/Queries/Dashboard/player.graphql'
+import updatePlayer from '../../../GraphQL/Queries/Dashboard/updatePlayer.graphql'
+
 export default {
   name: "UpdatePlayer",
   props: ['id'],
+  apollo:
+  {
+    settlements: settlements
+  },
   data() {
     return {
-      player: {
-        name: "",
-        settlement: "",
-        settlementId: '',
-        img: "",
-        extension: ""
-      },
+      player: {},
       image: '',
+      displayImage: '',
       settlement: "",
       alertMessage: null,
       sentProperly: false,
@@ -88,14 +91,31 @@ export default {
       const valid = await this.$validator.validateAll();
 
       if (valid) {
-        this.player.settlement = this.settlement;
-        this.player.settlementId = this.settlementId(this.player.settlement);
-        this.$store.dispatch('updatePlayer',this.player);
+        // this.player.settlement = this.settlement;
+        // this.player.settlementId = this.settlementId(this.player.settlement);
+        // this.$store.dispatch('updatePlayer',this.player);
+
+        let formData = new FormData();
+        formData.append("graphql", `{ "query": "${updatePlayer.loc.source.body}", "variables": 
+         ${JSON.stringify(this.player)}
+        }`);
+
+        formData.append(0,this.image);        
+
+        fetch("http://localhost:5000/api/graphql", {
+          method: 'post',
+          body: formData
+        });
+
         this.closeModal();
       }
     },
+    switchSettlementId(e)
+    {
+      this.player.settlementId = e.target.value;
+    },
     onFileSelected(event) {
-      this.player.img = event.target.files[0];
+      this.image = event.target.files[0];
       let files = event.target.files || event.dataTransfer.files;
 
       if (!files.length) {
@@ -110,7 +130,7 @@ export default {
       let vm = this;
 
       reader.onload = (e) => {
-        vm.image = e.target.result;
+        vm.displayImage = e.target.result;
       };
 
       reader.readAsDataURL(file);
@@ -126,16 +146,25 @@ export default {
       }
     }
   },
-  computed: {
-    settlements() {
-      return this.$store.getters.settlements;
-    }
-  },
+  // computed: {
+    // settlements() {
+    //   return this.$store.getters.settlements;
+    // }
+  // },
   created() {
-    const player = this.$store.getters.player(this.$route.params.id);
-    this.player = player[0];
-    this.settlement = this.player.settlement;
-  }
+    // const player = this.$store.getters.player(this.$route.params.id);
+    // this.player = player[0];
+    // this.settlement = this.player.settlement;
+    this.$apollo.query({
+      query: player,
+      variables:
+      {
+        id: this.$route.params.id
+      }
+    }).then(result => {
+     this.player = result.data.player;
+    });
+   }
 }
 
 </script>

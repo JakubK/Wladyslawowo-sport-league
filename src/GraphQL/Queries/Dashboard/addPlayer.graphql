@@ -1,0 +1,7 @@
+mutation addPlayer($name: String!,$settlementId: Int!,  $links: [String])
+{
+    addPlayer(name: $name,settlementId: $settlementId, links: $links)
+    {
+        id
+    }
+}

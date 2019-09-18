@@ -17,8 +17,8 @@
           </tr>
           </thead>
           <transition-group tag="tbody" name="fade">
-            <tr v-for="(settlement) in settlements" :key="settlement.id">
-              <th>{{settlement.index}}</th>
+            <tr v-for="(settlement, index) in settlements" :key="settlement.id">
+              <th>{{index}}</th>
               <th>{{settlement.name}}</th>
               <th>
                 <div class="table-panel-buttons">
@@ -45,7 +45,10 @@
 </template>
 
 <script>
+import settlements from '../../GraphQL/Queries/Dashboard/settlements.graphql'
+import deleteSettlement from '../../GraphQL/Queries/Dashboard/deleteSettlement.graphql'
 
+import gql from 'graphql-tag'
 export default {
   name: "Settlements",
   data() {
@@ -54,35 +57,24 @@ export default {
       pageSize: 8,
     }
   },
+  apollo:
+  {
+    settlements: settlements
+  },
   computed: {
-    settlements() {
-      //Add dynamically updated index for each element in array
-      for (let i = 0; i <= this.settlementsList.length; i++) {
-        this.settlementsList.forEach(item => {
-          item["index"] = (i++) + 1;
-        });
-      }
-
-      return this.settlementsList.filter((row, index) => {
-        let start = (this.currentPage - 1) * this.pageSize;
-        let end = this.currentPage * this.pageSize;
-
-        if (index >= start && index < end) {
-          return true;
-        }
-      });
-    },
-    settlementsList()
-    {
-      return this.$store.getters.settlements;
-    },
     pages() {
-      return Math.ceil(this.settlementsList.length / this.pageSize);
+      return Math.ceil(this.settlements.length / this.pageSize);
     },
   },
   methods: {
     removeSettlement(settlement) {
-      this.$store.dispatch('removeSettlement',settlement);
+      //this.$store.dispatch('removeSettlement',settlement);
+      this.$apollo.mutate({
+        mutation: deleteSettlement,
+        variables:{
+          id: settlement.id
+        }
+      });
     },
     updateSettlement(settlement) {
       this.$router.push({name: "UpdateSettlement", params: {id: settlement.id}});

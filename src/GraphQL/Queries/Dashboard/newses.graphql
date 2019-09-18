@@ -1,0 +1,9 @@
+query newses
+{
+  newses
+  {
+    id,
+    date,
+    name
+  }
+}

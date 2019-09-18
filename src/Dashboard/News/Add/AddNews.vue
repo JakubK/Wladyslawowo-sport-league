@@ -50,8 +50,8 @@
                 </label>
               </div>
             </div>
-            <div v-if="image">
-              <img class="attachment-image" :src="image"/>
+            <div v-if="displayImage">
+              <img class="attachment-image" :src="displayImage"/>
             </div>
           </form>
         </section>
@@ -65,6 +65,8 @@
 </template>
 
 <script>
+import addNews from '../../../GraphQL/Queries/Dashboard/addNews.graphql'
+
 export default {
   name: "AddNews",
   data() {
@@ -73,9 +75,9 @@ export default {
         name: "",
         description: "",
         date: null,
-        img: ""
       },
       image: '',
+      displayImage: '',
       alertMessage: null,
       sentProperly: false,
       alertTimeoutId: null
@@ -87,7 +89,19 @@ export default {
       const valid = await this.$validator.validateAll();
 
       if (valid) {
-        this.$store.dispatch('addNews', this.news);
+
+        //this.$store.dispatch('addNews', this.news);
+        let formData = new FormData();
+        formData.append("graphql", `{ "query": "${addNews.loc.source.body}", "variables": 
+         ${JSON.stringify(this.news)}
+        }`);
+
+        formData.append(0,this.image);
+
+        fetch("http://localhost:5000/api/graphql", {
+          method: 'post',
+          body: formData
+        });   
 
         for (let key in this.news) {
           this.news[key] = '';
@@ -108,7 +122,7 @@ export default {
       }, 3000);
     },
     onFileSelected(event) {
-      this.news.img = event.target.files[0];
+      this.image = event.target.files[0];
       let files = event.target.files || event.dataTransfer.files;
 
       if (!files.length) {
@@ -123,7 +137,7 @@ export default {
       let vm = this;
 
       reader.onload = (e) => {
-        vm.image = e.target.result;
+        vm.displayImage = e.target.result;
       };
       reader.readAsDataURL(file);
     },
