@@ -1,0 +1,11 @@
+query news($id: Int!)
+{
+  news:newse(id: $id)
+  {
+    id,
+    name,
+    description,
+    date,
+    media
+  }
+}

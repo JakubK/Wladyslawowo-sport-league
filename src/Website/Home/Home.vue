@@ -67,7 +67,7 @@ export default {
     topNews: topNews,
     topSettlements: topSettlements,
     topPlayers: topPlayers
-  },
+  }
 };
 
 </script>

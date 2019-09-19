@@ -1,0 +1,17 @@
+query settlement($id: Int!)
+{
+  settlement(id:$id)
+  {
+    name,
+    media,
+    description,
+    players{
+      id,
+      name,
+      points
+    },
+    events{
+      season
+    }
+  }
+}

@@ -5,7 +5,7 @@
         <h1 class="title is-3">{{news.name}}</h1>
       </header>
       <section class="news">
-        <figure v-if="news.imageUrl" class="news-img" :style="{'background-image': `url(${news.imageUrl})`}"></figure>
+        <figure v-if="news.media" class="news-img" :style="{'background-image': `url(${news.media})`}"></figure>
         <div class="news-content">
           <div class="news-content-top">
             <h2 class="title is-5">{{news.name}}</h2>
@@ -20,13 +20,21 @@
 </template>
 
 <script>
-
+  import news from '../../GraphQL/Queries/Newses/news.graphql'
   export default {
     props: ['id'],
     name: "NewsDetails",
-    computed: {
-      news() {
-        return this.$store.getters.briefNewsById(this.id);
+    apollo:{
+      news: {
+        query()
+        {
+          return news;
+        },
+        variables(){
+          return{
+            id: this.id
+          }
+        }
       }
     }
   }
