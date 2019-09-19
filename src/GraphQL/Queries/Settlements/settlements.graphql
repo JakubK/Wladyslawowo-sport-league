@@ -1,0 +1,7 @@
+query settlements{
+  settlements{
+    id,
+    name,
+    points
+  }
+}

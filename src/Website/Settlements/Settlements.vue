@@ -28,13 +28,12 @@
 </template>
 
 <script>
+import settlements from '../../GraphQL/Queries/Settlements/settlements.graphql'
 
 export default {
 	name: "Settlements",
-	computed: {
-	  settlements() {
-	    return this.$store.getters.settlements;
-		}
+	apollo:{
+		settlements: settlements
 	}
 }
 
