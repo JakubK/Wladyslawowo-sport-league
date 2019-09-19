@@ -2,12 +2,12 @@
 	<main class="website-container">
 		<section class="description">
 			<h2 class="description-header title is-3">{{ settlement.name }}</h2>
-			<figure class="description-img" v-if="settlement.imageUrl">
-				<img :src="settlement.imageUrl" :alt="settlement.name" />
+			<figure class="description-img" v-if="settlement.media">
+				<img :src="settlement.media" :alt="settlement.name" />
 			</figure>
 			<div class="description-content">
 				<p class="description-content-text">{{ settlement.description }}</p>
-				<p class="description-content-text">Liczba zawodników: <b>{{ settlement.playerCount }}</b></p>
+				<p class="description-content-text">Liczba zawodników: <b>{{ settlement.players.length }}</b></p>
 			</div>
 		</section>
 		<section class="stats">
@@ -25,9 +25,9 @@
 							</tr>
 						</thead>
 						<tbody>
-							<tr v-for="(player, index) in settlementPlayers" :key="index">
+							<tr v-for="(player, index) in settlement.players" :key="index">
 								<th>{{ index + 1 }}</th>
-								<th>{{ player.player.name }}</th>
+								<th>{{ player.name }}</th>
 								<th>{{ player.points }}</th>
 							</tr>
 						</tbody>
@@ -47,10 +47,10 @@
 								<th>Liczba punktów</th>
 							</tr>
 						</thead>
-						<tbody>
-							<tr v-for="(item, index) in settlements" :key="index" :class="{ 'is-active' : item.id === settlement.id}">
+						<tbody v-if="$route.params.id">
+							<tr v-for="(item, index) in settlements" :key="index" :class="{ 'is-active' : item.id == $route.params.id}">
 								<th>{{ index + 1 }}</th>
-								<th>{{ item.name }}</th>
+								<th>{{ item.name}}</th>
 								<th>{{ item.points }} pkt</th>
 							</tr>
 						</tbody>
@@ -76,7 +76,7 @@
 						</button>
 					</div>
 				</header>
-				<table v-if="seasonData.length > 0" class="table-panel">
+				<table v-if="settlement.events.length > 0" class="table-panel">
 					<thead>
 						<tr>
 							<th>LP</th>
@@ -87,7 +87,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr v-for="(event, index) in seasonData" :key="index">
+						<tr v-for="(event, index) in settlement.events" :key="index">
 							<th>{{ index + 1 }}</th>
 							<th>{{ event.player }}</th>
 							<th>{{ event.name }}</th>
@@ -105,33 +105,41 @@
 </template>
 
 <script>
+	import settlement from '../../GraphQL/Queries/Settlements/settlement.graphql'
+	import settlements from '../../GraphQL/Queries/Settlements/settlements.graphql'
 	export default {
 		props: ['id'],
 		name: "SettlementDetails",
+		apollo:{
+			settlement: {
+				query()
+				{
+					return settlement;
+				},
+				variables(){
+					return{
+						id: this.id
+					}
+				}
+			},
+			settlements: settlements
+		},
 		data()
 		{
 			return{
-			season: null,
-			maxSeason: null
+			season: null
 			};
 		},
 		computed: {
-			settlement() {
-				return this.$store.getters.briefSettlementById(this.id);
-			},
-			settlements() {
-				return this.$store.getters.settlements;
-			},
-			settlementPlayers() {
-				return this.$store.getters.playerSettlements(this.id);
-			},
 			seasonData()
 			{
 				return this.$store.getters.settlementSeasonData(this.id, this.season);
 			},
 			topSeason()
 			{
-				return this.$store.getters.settlementTopSeason(this.id);
+				return Math.max.apply(Math,this.settlement.events.map(function(x){
+					return x.season;
+				}));
 			}
 		},
 		methods:
@@ -146,7 +154,6 @@
 		},
 		mounted()
 		{
-			this.maxSeason = this.topSeason;
 			this.setSeason(this.topSeason);
 		}
 	}
