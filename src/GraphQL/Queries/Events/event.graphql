@@ -1,0 +1,19 @@
+query event($id: Int!)
+{
+  event(id:$id)
+  {
+    id,
+    name,
+    description,
+    medias,
+    date,
+    players:scores{
+      id,
+      points:value,
+      player{
+        name,
+        settlement
+      }
+    }
+  }
+}

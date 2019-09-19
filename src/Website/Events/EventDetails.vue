@@ -23,11 +23,11 @@
 								<th>Liczba punktów</th>
 							</tr>
 							</thead>
-							<tbody>
-							<tr v-if="event.players" :key="index" v-for="(player, index) in event.players">
+							<tbody v-if="event.players">
+							<tr :key="index" v-for="(player, index) in event.players">
 								<th>{{ index + 1 }}</th>
-								<th>{{ player.name }}</th>
-								<th>{{ player.settlement }}</th>
+								<th>{{ player.player.name }}</th>
+								<th>{{ player.player.settlement }}</th>
 								<th>{{ player.points }} pkt</th>
 							</tr>
 							</tbody>
@@ -62,8 +62,8 @@
 				<header class="event-lightbox-title">
 					<h3>Galeria zdjęć</h3>
 				</header>
-				<p class="no-img" v-if="!event.imageUrls">Brak zdjęć</p>
-				<lightbox v-if="event.imageUrls" class="event-lightbox-thumbnail" :thumbnail="event.imageUrls[0]" :images="event.imageUrls">
+				<p class="no-img" v-if="!event.medias">Brak zdjęć</p>
+				<lightbox v-if="event.imageUrls" class="event-lightbox-thumbnail" :thumbnail="event.medias[0]" :images="event.medias">
 					<lightbox-default-loader slot="loader"/>
 				</lightbox>
 			</section>
@@ -73,13 +73,21 @@
 </template>
 
 <script>
-
+import event from '../../GraphQL/Queries/Events/event.graphql'
 export default {
 	props: ['id'],
 	name: "EventDetails",
-	computed: {
-	  event() {
-	    return this.$store.getters.event(this.id);
+	apollo:{
+		event: {
+			query()
+			{
+				return event
+			},
+			variables(){
+				return{
+					id: this.id
+				}
+			}
 		}
 	}
 }
