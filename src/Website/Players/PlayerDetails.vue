@@ -35,7 +35,7 @@
 						</table>
 					</div>
 				</div>
-				<div class="stats-table">
+				<div v-if="player" class="stats-table">
 					<header class="website-header">
 						<h3 class="title is-4">Imprezy, w których brał udział</h3>
 					</header>
@@ -60,7 +60,7 @@
 						</table>
 					</div>
 				</div>
-				<div v-if="topSeason > 0" class="seasons">
+				<div class="seasons">
 					<header class="website-header seasons-header">
 						<h3 class="seasons-title title is-4">Sezony</h3>
 						<div class="season-controls">
@@ -73,7 +73,7 @@
 							</button>
 						</div>
 					</header>
-					<table v-if="seasonData.length > 0" class="table-panel">
+					<table v-if="player.events" class="table-panel">
 						<thead>
 							<tr>
 								<th>LP</th>
@@ -110,48 +110,42 @@ export default {
 	data()
 	{
 		return{
-			season: null,
-			maxSeason: null
+			season: 0,
+			player: {}
 		};
 	},
-	apollo:
+	methods:
 	{
-		player: {
-			query: player,
-			variables()
+		setSeason(targetVal)
+		{
+			if(targetVal >= 1 && targetVal <= this.lastSeason)
 			{
-				return{
-					id: this.id
-				}
+				this.season = targetVal;
 			}
 		}
 	},
-	computed:
-	{
-		// topSeason()
-		// {
-		// 	return this.$store.getters.playerTopSeason(this.player);
-		// },
-		// seasonData()
-		// {
-		// 	return this.$store.getters.seasonData(this.player, this.season);
-		// }
+	computed:{
+		seasonData(){
+			return this.player.events.filter(x => x.event.season === this.season);
+		},
+		lastSeason()
+		{
+			return Math.max(...this.player.events.map(e => {
+				return e.event.season;
+			}));
+		}
 	},
-	// methods:
-	// {
-	// 	setSeason(targetVal)
-	// 	{
-	// 		if(targetVal >= 1 && targetVal <= this.topSeason)
-	// 		{
-	// 			this.season = targetVal;
-	// 		}
-	// 	}
-	// },
-	// mounted()
-	// {
-	// 	this.maxSeason = this.topSeason;
-	// 	this.setSeason(this.topSeason);
-	// }
+	mounted(){
+		this.$apollo.query({
+			query: player,
+			variables:{
+				id: this.id
+			}
+		}).then(result => {
+			this.player = result.data.player;
+			this.setSeason(this.lastSeason);
+		})
+	}
 }
 </script>
 
