@@ -6,12 +6,16 @@ query settlement($id: Int!)
     media,
     description,
     players{
-      id,
       name,
-      points
-    },
-    events{
-      season
+      points,
+      scores{
+        event{
+          name,
+          date,
+          season
+        },
+        points
+      }
     }
   }
 }
