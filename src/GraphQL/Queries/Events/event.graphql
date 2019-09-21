@@ -9,7 +9,7 @@ query event($id: Int!)
     date,
     players:scores{
       id,
-      points:value,
+      points,
       player{
         name,
         settlement
