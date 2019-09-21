@@ -11,10 +11,11 @@ query player($id: Int!)
     {
       event{
         name,
-        date
+        date,
+        season
       }
       
-      points: value
+      points
     }
   }
 }

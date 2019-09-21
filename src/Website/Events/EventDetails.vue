@@ -48,10 +48,10 @@
 							</tr>
 							</thead>
 							<tbody>
-							<tr v-for="(item,index) in event.settlementScores" :key="index">
+							<tr v-for="(item,index) in settlementScores" :key="index">
 								<th>{{ index + 1 }}</th>
-								<th>{{ item.key }}</th>
-								<th>{{ item.value }} pkt</th>
+								<th>{{ item.settlement }}</th>
+								<th>{{ item.points }} pkt</th>
 							</tr>
 							</tbody>
 						</table>
@@ -63,7 +63,7 @@
 					<h3>Galeria zdjęć</h3>
 				</header>
 				<p class="no-img" v-if="!event.medias">Brak zdjęć</p>
-				<lightbox v-if="event.imageUrls" class="event-lightbox-thumbnail" :thumbnail="event.medias[0]" :images="event.medias">
+				<lightbox v-if="event.medias" class="event-lightbox-thumbnail" :thumbnail="event.medias[0]" :images="event.medias">
 					<lightbox-default-loader slot="loader"/>
 				</lightbox>
 			</section>
@@ -88,6 +88,30 @@ export default {
 					id: this.id
 				}
 			}
+		}
+	},
+	computed:{
+		settlementScores(){
+				let set = new Map();
+				for(let i = 0;i < this.event.players.length;i++)
+					if(set.has(this.event.players[i].player.settlement))
+						set.set(this.event.players[i].player.settlement,set.get(this.event.players[i].player.settlement) + this.event.players[i].points)
+					else
+						set.set(this.event.players[i].player.settlement,this.event.players[i].points)
+
+				const keys = Array.from(set.keys());
+				const values = Array.from(set.values());
+
+				let result = [];
+				
+				keys.forEach((x,index) => {
+					result.push({
+						settlement: x,
+						points: values[index]
+					});
+				});
+
+				return result;
 		}
 	}
 }
