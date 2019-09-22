@@ -5,18 +5,18 @@ import settlements from './Settlements'
 import {apolloClient} from '../../main'
 
 import players from '../../GraphQL/Queries/Players/players.graphql'
+import player from '../../GraphQL/Queries/Players/player.graphql'
 
 export default {
   state: {
     players: [],
+    player:{}
   },
   events,
   settlements,
   getters: {
-    player: state => id => {
-      return state.players.filter(player => {
-        return player.id === id;
-      });
+    player: state => {
+      return state.player;
     },
     briefPlayerById: state => id => {
       const player = state.players.filter(player => player.id === id);
@@ -145,16 +145,6 @@ export default {
       return result;
     },
     players: state => {
-      state.players.forEach(player => {
-        if (settlements.state.settlements) {
-          settlements.state.settlements.forEach(settlement => {
-            if (settlement && settlement.id === player.settlementId) {
-              player.settlement = settlement.name;
-            }
-          });
-        }
-      });
-
       return state.players;
     },
     playerTopSeason: state => player => 
@@ -181,6 +171,9 @@ export default {
     }
   },
   mutations: {
+    player:(state, player) => {
+      state.player = player;
+    },
     players: (state, players) => {
       state.players = players;
     },
@@ -195,12 +188,20 @@ export default {
     },
   },
   actions: {
-    players: async ({commit}) => {
-      
+    player: async({commit}, id) => {
+      let response = await apolloClient.query({
+        query: player,
+        variables:{
+          id: id
+        }
+      });
+
+      commit("player",response.data.player);
+    },
+    players: async ({commit}) => {    
       let response = await apolloClient.query({
         query: players
       });
-
       commit('players', response.data.players);
     },
     addPlayer: async ({commit}, player) => {
