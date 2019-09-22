@@ -27,11 +27,15 @@
 </template>
 
 <script>
-  import newses from '../../GraphQL/Queries/Newses/newses.graphql'
   export default {
     name: "News",
-    apollo:{
-      newses: newses
+    computed:{
+      newses(){
+        return this.$store.getters.newses;
+      }
+    },
+    created(){
+      this.$store.dispatch("newses");
     }
   }
 
