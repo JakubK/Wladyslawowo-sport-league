@@ -21,7 +21,7 @@ const httpLink = createHttpLink({
 
 const cache = new InMemoryCache();
 
-const apolloClient = new ApolloClient({
+export const apolloClient = new ApolloClient({
   link: httpLink,
   cache
 })
@@ -46,11 +46,5 @@ new Vue({
   router: Router,
   store: Store,
   apolloProvider,
-  render: h => h(App),
-  created () {
-    // this.$store.dispatch('settlements');
-    // this.$store.dispatch('news');
-    // this.$store.dispatch('players');
-    // this.$store.dispatch('events');
-  }
+  render: h => h(App)
 }).$mount('#app')
