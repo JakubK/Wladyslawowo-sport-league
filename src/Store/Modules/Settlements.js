@@ -3,6 +3,10 @@ import players from './Players'
 import events from './Events'
 import Vue from "vue";
 
+import {apolloClient} from '../../main'
+
+import settlements from '../../GraphQL/Queries/Settlements/settlements.graphql'
+
 export default {
   state: {
     settlements: [],
@@ -151,46 +155,8 @@ export default {
       }
     },
     settlements: state => {
-      const allEvents = events.getters.events(events.state);
-      let playersOfSettlement;
-
-      let result = state.settlements.map(settlement => {
-        playersOfSettlement = players.getters.players(players.state).filter(player => player.settlement === settlement.name);
-        let sum = 0;
-
-        if (allEvents) {
-          allEvents.forEach(event => {
-            if (event.players) {
-              event.players.forEach(item => {
-                playersOfSettlement.forEach(player => {
-                  if (item.name === player.name) {{
-                    sum += parseInt(item.points);
-                  }}
-                });
-              });
-            }
-          });
-        }
-
-        return {
-          id: settlement.id,
-          name: settlement.name,
-          points: sum,
-          imageUrl: settlement.imageUrl
-        }
-      });
-
-      result = result.sort((a, b) => {
-        if (a.points > b.points) {
-          return -1;
-        } else if (b.points > a.points) {
-          return 1;
-        }
-        return 0;
-      });
-
-      return result;
-    },
+      return state.settlements;
+    }
   },
   mutations: {
     settlements: (state, settlements) => {
@@ -211,20 +177,12 @@ export default {
   },
   actions: {
     settlements: async ({commit}) => {
-      const data = await firebase.database().ref('settlements').once('value');
-      let settlements = [];
-      const dataValue = data.val();
-
-      Object.keys(dataValue).forEach(itemKey => {
-        settlements.push({
-          id: itemKey,
-          name: dataValue[itemKey].name,
-          description: dataValue[itemKey].description,
-          imageUrl: dataValue[itemKey].imageUrl
-        })
+      
+      let response = await apolloClient.query({
+        query: settlements
       });
 
-      commit('settlements', settlements);
+      commit('settlements', response.data.settlements);
     },
     addSettlement: async ({commit}, settlement) => {
       const newSettlement = {

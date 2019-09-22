@@ -1,5 +1,6 @@
-import firebase from 'firebase';
 import players from './Players'
+import {apolloClient} from '../../main'
+import events from '../../GraphQL/Queries/Events/events.graphql'
 
 export default {
   state: {
@@ -83,23 +84,12 @@ export default {
   },
   actions: {
     events: async ({commit}) => {
-      const data = await firebase.database().ref('events').once('value');
-      let events = [];
-      const dataValue = data.val();
 
-      Object.keys(dataValue).forEach(itemKey => {
-        events.push({
-          id: itemKey,
-          name: dataValue[itemKey].name,
-          description: dataValue[itemKey].description,
-          players: dataValue[itemKey].players,
-          date: dataValue[itemKey].date,
-          imageUrls: dataValue[itemKey].imageUrls,
-          season: dataValue[itemKey].season
-        })
+      let response = await apolloClient.query({
+        query: events
       });
 
-      commit('events', events);
+      commit('events', response.data.events);
     },
     addEvent: async ({commit}, event) => {
       const newEvent = {
@@ -115,8 +105,6 @@ export default {
 
       const data = await firebase.database().ref("events").push(newEvent)
       key = data.key;
-
-
 
       if (event.images.length > 0) {
         for (let i = 0;i < event.images.length;i++) {

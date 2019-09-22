@@ -1,18 +1,19 @@
-import firebase from 'firebase'
 import Vue from 'vue'
+import {apolloClient} from '../../main'
+import newses from '../../GraphQL/Queries/Newses/newses.graphql'
 
 export default {
   state: {
-    news: [],
+    newses: [],
   },
   getters: {
-    news: state => {
-      return state.news.sort((a, b) => {
+    newses: state => {
+      return state.newses.sort((a, b) => {
         return new Date(b.date) - new Date(a.date);
       });
     },
     topNews: state => {
-      const sortedNews = state.news.sort((a, b) => {
+      const sortedNews = state.newses.sort((a, b) => {
         return new Date(b.date) - new Date(a.date);
       });
 
@@ -36,8 +37,8 @@ export default {
     }
   },
   mutations: {
-    news: (state, news) => {
-      state.news = news
+    newses: (state, newses) => {
+      state.newses = newses;
     },
     addNews: (state, newNews) => {
       state.news.push(newNews);
@@ -53,22 +54,13 @@ export default {
     }
   },
   actions: {
-    news: async ({commit}) => {
-      const data = await firebase.database().ref('news').once('value');
-      const dataValue = data.val();
-      let news = [];
-
-      Object.keys(dataValue).forEach(itemKey => {
-        news.push({
-          id: itemKey,
-          name: dataValue[itemKey].name,
-          description: dataValue[itemKey].description,
-          imageUrl: dataValue[itemKey].imageUrl,
-          date: dataValue[itemKey].date
-        })
+    newses: async ({commit}) => {
+      
+      let response = await apolloClient.query({
+        query: newses
       });
 
-      commit('news', news);
+      commit('newses', response.data.newses);
     },
     addNews: async ({commit}, news) => {
       let imageUrl;

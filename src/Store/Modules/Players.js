@@ -2,6 +2,10 @@ import firebase from 'firebase'
 import events from './Events'
 import settlements from './Settlements'
 
+import {apolloClient} from '../../main'
+
+import players from '../../GraphQL/Queries/Players/players.graphql'
+
 export default {
   state: {
     players: [],
@@ -192,21 +196,12 @@ export default {
   },
   actions: {
     players: async ({commit}) => {
-      const data = await firebase.database().ref('players').once('value');
-      let players = [];
-      const dataValue = data.val();
-
-      Object.keys(dataValue).forEach(itemKey => {
-        players.push({
-          id: itemKey,
-          name: dataValue[itemKey].name,
-          settlement: dataValue[itemKey].settlement,
-          settlementId: dataValue[itemKey].settlementId,
-          imageUrl: dataValue[itemKey].imageUrl
-        });
+      
+      let response = await apolloClient.query({
+        query: players
       });
 
-      commit('players', players);
+      commit('players', response.data.players);
     },
     addPlayer: async ({commit}, player) => {
       let imageUrl;
