@@ -73,24 +73,13 @@
 </template>
 
 <script>
-import event from '../../GraphQL/Queries/Events/event.graphql'
 export default {
 	props: ['id'],
 	name: "EventDetails",
-	apollo:{
-		event: {
-			query()
-			{
-				return event
-			},
-			variables(){
-				return{
-					id: this.id
-				}
-			}
-		}
-	},
 	computed:{
+		event(){
+			return this.$store.getters.event;
+		},
 		settlementScores(){
 				let set = new Map();
 				for(let i = 0;i < this.event.players.length;i++)
@@ -113,6 +102,9 @@ export default {
 
 				return result;
 		}
+	},
+	created(){
+		this.$store.dispatch("event", this.id);
 	}
 }
 </script>

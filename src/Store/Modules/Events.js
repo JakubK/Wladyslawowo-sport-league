@@ -1,61 +1,18 @@
 import players from './Players'
 import {apolloClient} from '../../main'
+
 import events from '../../GraphQL/Queries/Events/events.graphql'
+import event from '../../GraphQL/Queries/Events/event.graphql'
 
 export default {
   state: {
     events: [],
+    event:{}
   },
   players,
   getters: {
-    event: state => id =>
-    {
-      let ev = state.events.filter(x => x.id == id)[0];
-      let pointMap = new Map();
-      let pl = players.getters.players(players.state);
-      // assign settlements to the players
-
-      if(ev){
-        if(ev.players !== undefined){
-          ev.players.forEach((eventPlayer) => {
-            for(let i = 0;i < pl.length;i++){
-              if(eventPlayer.name === pl[i].name){
-                eventPlayer.settlement = pl[i].settlement;
-                break;
-              }
-            }
-            if(pointMap.get(eventPlayer.settlement) !== undefined)
-              pointMap.set(eventPlayer.settlement, pointMap.get(eventPlayer.settlement) + eventPlayer.points);
-            else
-              pointMap.set(eventPlayer.settlement, eventPlayer.points);    
-          });    
-        }
-      } 
-
-      let settlementScores = [];
-
-      let keys = [...pointMap.keys()];
-      keys.forEach((key) => {
-        settlementScores.push({
-          key: key,
-          value: pointMap.get(key)
-        });
-      })
-
-      settlementScores = settlementScores.sort((a,b) =>{
-        if(a.value > b.value)
-        {
-          return -1;
-        }else if(b.value > a.value)
-        {
-          return 1;
-        }
-        return 0;
-      });
-
-      if(ev) ev.settlementScores = settlementScores;
-
-      return ev;
+    event: state => {
+      return state.event
     },
     topEvents: state => {
       const result = state.events.sort((a, b) => {
@@ -69,6 +26,9 @@ export default {
     },
   },
   mutations: {
+    event: (state,event) => {
+      state.event = event;
+    },
     events: (state, events) => {
       state.events = events;
     },
@@ -83,6 +43,13 @@ export default {
     },
   },
   actions: {
+    event: async({commit}, id) => {
+      let response = await apolloClient.query({
+        query: event
+      });
+
+      commit('event', response.data.event);
+    },
     events: async ({commit}) => {
 
       let response = await apolloClient.query({

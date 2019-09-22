@@ -1,12 +1,18 @@
 import Vue from 'vue'
 import {apolloClient} from '../../main'
+
 import newses from '../../GraphQL/Queries/Newses/newses.graphql'
+import news from '../../GraphQL/Queries/Newses/news.graphql'
 
 export default {
   state: {
     newses: [],
+    news:{}
   },
   getters: {
+    news: state => {
+      return state.news;
+    },
     newses: state => {
       return state.newses.sort((a, b) => {
         return new Date(b.date) - new Date(a.date);
@@ -37,6 +43,9 @@ export default {
     }
   },
   mutations: {
+    news: (state,news) => {
+      state.news = news;
+    },
     newses: (state, newses) => {
       state.newses = newses;
     },
@@ -54,12 +63,19 @@ export default {
     }
   },
   actions: {
+    news: async ({commit}, id) => {
+      let response = await apolloClient.query({
+        query: news,
+        variables: {
+          id: id
+        }
+      });
+      commit('news', response.data.news);
+    },
     newses: async ({commit}) => {
-      
       let response = await apolloClient.query({
         query: newses
       });
-
       commit('newses', response.data.newses);
     },
     addNews: async ({commit}, news) => {
