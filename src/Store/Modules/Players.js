@@ -6,15 +6,20 @@ import {apolloClient} from '../../main'
 
 import players from '../../GraphQL/Queries/Players/players.graphql'
 import player from '../../GraphQL/Queries/Players/player.graphql'
+import topPlayers from '../../GraphQL/Queries/Home/topPlayers.graphql'
 
 export default {
   state: {
     players: [],
-    player:{}
+    player:{},
+    topPlayers: []
   },
   events,
   settlements,
   getters: {
+    topPlayers: state => {
+      return state.topPlayers;
+    },
     player: state => {
       return state.player;
     },
@@ -69,43 +74,6 @@ export default {
         imageUrl: searchPlayer.imageUrl,
         playedEvents: playedEvents
       }
-    },
-    topPlayers: state => {
-      let allEvents = events.getters.events(events.state);
-      let result = state.players.map(player => {
-        let sum = 0;
-
-        if (allEvents) {
-          allEvents.forEach(event => {
-            if (event.players) {
-              event.players.forEach(item => {
-                if (item.name === player.name) {
-                  sum += parseInt(item.points);
-                }
-              });
-            }
-          });
-        }
-
-        return {
-          id: player.id,
-          name: player.name,
-          points: sum,
-          settlement: player.settlement,
-          imageUrl: player.imageUrl
-        }
-      });
-
-      result = result.sort((a,b) => {
-        if (a.points > b.points) {
-          return -1;
-        } else if (b.points > a.points) {
-          return 1;
-        }
-        return 0;
-      });
-
-      return result.slice(0,5);
     },
     playersByScore: state => {
       let allEvents = events.getters.events(events.state);
@@ -171,6 +139,9 @@ export default {
     }
   },
   mutations: {
+    topPlayers:(state, topPlayers) => {
+      state.topPlayers = topPlayers;
+    },
     player:(state, player) => {
       state.player = player;
     },
@@ -188,6 +159,13 @@ export default {
     },
   },
   actions: {
+    topPlayers: async({commit}) =>{
+      let response = await apolloClient.query({
+        query: topPlayers
+      });
+
+      commit("topPlayers",response.data.topPlayers);
+    },
     player: async({commit}, id) => {
       let response = await apolloClient.query({
         query: player,

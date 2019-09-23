@@ -7,11 +7,13 @@ import {apolloClient} from '../../main'
 
 import settlements from '../../GraphQL/Queries/Settlements/settlements.graphql'
 import settlement from '../../GraphQL/Queries/Settlements/settlement.graphql'
+import topSettlements from '../../GraphQL/Queries/Home/topSettlements.graphql'
 
 export default {
   state: {
     settlements: [],
-    settlement: {}
+    settlement: {},
+    topSettlements: []
   },
   players,
   events,
@@ -20,45 +22,7 @@ export default {
       return state.settlement;
     },
     topSettlements: state => {
-      const allEvents = events.getters.events(events.state);
-      let playersOfSettlement;
-
-      let result = state.settlements.map(settlement => {
-        let sum = 0;
-        playersOfSettlement = players.getters.players(players.state).filter(player => player.settlement === settlement.name);
-
-        if (allEvents) {
-          allEvents.forEach(event => {
-            if (event.players) {
-              event.players.forEach(item => {
-                playersOfSettlement.forEach(settlement => {
-                  if (item.name === settlement.name) {
-                    sum += parseInt(item.points);
-                  }
-                })
-              });
-            }
-          });
-        }
-
-        return {
-          id: settlement.id,
-          name: settlement.name,
-          points: sum,
-          imageUrl: settlement.imageUrl
-        }
-      });
-
-      result = result.sort((a, b) => {
-        if (a.points > b.points) {
-          return -1;
-        } else if (b.points > a.points) {
-          return 1;
-        }
-        return 0;
-      });
-
-      return result.slice(0,5);
+      return state.topSettlements;
     },
     playerSettlements: () => id => {
       const playersCollection = players.getters.players(players.state).filter(player => player.settlementId === id);
@@ -159,6 +123,9 @@ export default {
     }
   },
   mutations: {
+    topSettlements:(state, topSettlements) => {
+      state.topSettlements = topSettlements;
+    },
     settlement: (state,settlement) => {
       state.settlement = settlement;
     },
@@ -179,6 +146,13 @@ export default {
     }
   },
   actions: {
+    topSettlements: async({commit}) =>{
+      let response = await apolloClient.query({
+        query: topSettlements
+      });
+
+      commit('topSettlements', response.data.topSettlements);
+    },
     settlement: async({commit}, id) => {
       let response = await apolloClient.query({
         query: settlement,

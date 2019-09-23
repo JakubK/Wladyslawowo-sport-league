@@ -3,13 +3,18 @@ import {apolloClient} from '../../main'
 
 import newses from '../../GraphQL/Queries/Newses/newses.graphql'
 import news from '../../GraphQL/Queries/Newses/news.graphql'
+import topNews from '../../GraphQL/Queries/Home/topNews.graphql'
 
 export default {
   state: {
     newses: [],
-    news:{}
+    news:{},
+    topNews: []
   },
   getters: {
+    topNews: state =>{
+      return state.topNews;
+    },
     news: state => {
       return state.news;
     },
@@ -17,13 +22,6 @@ export default {
       return state.newses.sort((a, b) => {
         return new Date(b.date) - new Date(a.date);
       });
-    },
-    topNews: state => {
-      const sortedNews = state.newses.sort((a, b) => {
-        return new Date(b.date) - new Date(a.date);
-      });
-
-      return sortedNews.slice(0, 5);
     },
     briefNewsById: state => newsId => {
       const news = state.news.find(news => news.id === newsId);
@@ -43,6 +41,9 @@ export default {
     }
   },
   mutations: {
+    topNews: (state,topNews) =>{
+      state.topNews = topNews;
+    },
     news: (state,news) => {
       state.news = news;
     },
@@ -63,6 +64,12 @@ export default {
     }
   },
   actions: {
+    topNews: async({commit}) =>{
+      let response = await apolloClient.query({
+        query: topNews
+      });
+      commit('topNews', response.data.topNews);
+    },
     news: async ({commit}, id) => {
       let response = await apolloClient.query({
         query: news,

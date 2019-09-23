@@ -3,11 +3,13 @@ import {apolloClient} from '../../main'
 
 import events from '../../GraphQL/Queries/Events/events.graphql'
 import event from '../../GraphQL/Queries/Events/event.graphql'
+import topEvents from '../../GraphQL/Queries/Home/topEvents.graphql'
 
 export default {
   state: {
     events: [],
-    event:{}
+    event:{},
+    topEvents: []
   },
   players,
   getters: {
@@ -15,17 +17,20 @@ export default {
       return state.event
     },
     topEvents: state => {
-      const result = state.events.sort((a, b) => {
+      const result = state.topEvents.sort((a, b) => {
         return new Date(b.date) - new Date(a.date);
       });
 
-      return result.slice(0,5);
+      return result;
     },
     events: state => {
       return state.events;
     },
   },
   mutations: {
+    topEvents: (state,topEvents) =>{
+      state.topEvents = topEvents;
+    },
     event: (state,event) => {
       state.event = event;
     },
@@ -43,9 +48,19 @@ export default {
     },
   },
   actions: {
+    topEvents: async({commit}) => {
+      let response = await apolloClient.query({
+        query: topEvents
+      });
+
+      commit('topEvents', response.data.topEvents);
+    },
     event: async({commit}, id) => {
       let response = await apolloClient.query({
-        query: event
+        query: event,
+        variables:{
+          id: id
+        }
       });
 
       commit('event', response.data.event);
