@@ -20,7 +20,6 @@
 </template>
 
 <script>
-  import news from '../../GraphQL/Queries/Newses/news.graphql'
   export default {
     props: ['id'],
     name: "NewsDetails",
