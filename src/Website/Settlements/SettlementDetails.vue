@@ -5,12 +5,12 @@
 			<figure class="description-img" v-if="settlement.media">
 				<img :src="settlement.media" :alt="settlement.name" />
 			</figure>
-			<div class="description-content">
+			<div v-if="settlement.players" class="description-content">
 				<p class="description-content-text">{{ settlement.description }}</p>
 				<p class="description-content-text">Liczba zawodników: <b>{{ settlement.players.length }}</b></p>
 			</div>
 		</section>
-		<section class="stats">
+		<section v-if="settlement.players" class="stats">
 			<div class="stats-table">
 				<header class="website-header">
 					<h3 class="title is-4">Gracze osiedla</h3>
@@ -101,22 +101,28 @@
 </template>
 
 <script>
-	import settlement from '../../GraphQL/Queries/Settlements/settlement.graphql'
-	import settlements from '../../GraphQL/Queries/Settlements/settlements.graphql'
 	export default {
 		props: ['id'],
 		name: "SettlementDetails",
-		apollo:{
-			settlements: settlements
-		},
 		data()
 		{
 			return{
-				season: 0,
-				settlement: {}
+				season: 0
 			};
 		},
+		created(){
+			this.$store.dispatch("settlement",this.id).then(() => {
+				this.setSeason(this.lastSeason);
+			});
+			this.$store.dispatch("settlements");
+		},
 		computed: {
+			settlement(){
+				return this.$store.getters.settlement;
+			},
+			settlements(){
+				return this.$store.getters.settlements;
+			},
 			seasonData()
 			{				
 				return this.settlement.players.map(p => {
@@ -151,18 +157,6 @@
 				}
 			}
 		},
-		mounted()
-		{
-			this.$apollo.query({
-				query: settlement,
-				variables:{
-					id: this.id
-				}
-			}).then(result => {
-				this.settlement = result.data.settlement;
-				this.setSeason(this.lastSeason);
-			})
-		}
 	}
 </script>
 

@@ -6,18 +6,18 @@ import Vue from "vue";
 import {apolloClient} from '../../main'
 
 import settlements from '../../GraphQL/Queries/Settlements/settlements.graphql'
+import settlement from '../../GraphQL/Queries/Settlements/settlement.graphql'
 
 export default {
   state: {
     settlements: [],
+    settlement: {}
   },
   players,
   events,
   getters: {
-    settlement: state => id => {
-      return state.settlements.filter(settlement => {
-        return settlement.id === id;
-      });
+    settlement: state => {
+      return state.settlement;
     },
     topSettlements: state => {
       const allEvents = events.getters.events(events.state);
@@ -159,6 +159,9 @@ export default {
     }
   },
   mutations: {
+    settlement: (state,settlement) => {
+      state.settlement = settlement;
+    },
     settlements: (state, settlements) => {
       state.settlements = settlements;
     },
@@ -176,6 +179,16 @@ export default {
     }
   },
   actions: {
+    settlement: async({commit}, id) => {
+      let response = await apolloClient.query({
+        query: settlement,
+        variables:{
+          id: id
+        }
+      });
+
+      commit('settlement', response.data.settlement);
+    },
     settlements: async ({commit}) => {
       
       let response = await apolloClient.query({
