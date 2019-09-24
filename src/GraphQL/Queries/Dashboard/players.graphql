@@ -3,6 +3,6 @@ query players
   players{
     id,
     name,
-    settlementName
+    settlement
   }
 }
