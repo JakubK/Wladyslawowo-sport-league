@@ -128,15 +128,10 @@
 
 <script>
 import updateEvent from '../../../GraphQL/Queries/Dashboard/updateEvent.graphql'
-import players from '../../../GraphQL/Queries/Dashboard/players.graphql'
 
 export default {
   name: "UpdateEvent",
   props: ['id'],
-  apollo:
-  {
-    players: players
-  },
   data() {
     return {
       imagesToRemove: [],
@@ -153,6 +148,9 @@ export default {
     }
   },
   computed:{
+    players(){
+      return this.$store.getters.dashboardPlayers;
+    },
     event(){
       return this.$store.getters.dashboardEvent;
     }
@@ -225,6 +223,7 @@ export default {
   },
   created() {
     this.$store.dispatch("dashboardEvent", this.id);
+    this.$store.dispatch("dashboardPlayers");
   }
 }
 

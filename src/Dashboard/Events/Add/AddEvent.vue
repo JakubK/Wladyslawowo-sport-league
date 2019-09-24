@@ -122,8 +122,6 @@
 </template>
 
 <script>
-import players from '../../../GraphQL/Queries/Dashboard/players.graphql'
-
 export default {
   name: "AddEvent",
   data() {
@@ -147,13 +145,10 @@ export default {
       alertTimeoutId: null
     }
   },
-  // computed: {
-  //   players() {
-  //     return this.$store.getters.players;
-  //   }
-  // },
-  apollo:{
-    players: players
+  computed: {
+    players() {
+      return this.$store.getters.dashboardPlayers;
+    }
   },
   methods: {
     switchPlayerId(e)
@@ -224,6 +219,9 @@ export default {
       this.images.splice(index,1);
       this.displayImages.splice(index,1);
     }
+  },
+  created(){
+    this.$store.dispatch("dashboardPlayers");
   }
 }
 
