@@ -60,7 +60,7 @@
             <div @click="removeImage(index)" class="attachments-image" v-for="(image,index) in displayImages" :key="index">
               <img :src="image"/>
             </div>
-            <div @click="removeUrl(index)" class="attachments-image" v-for="(url,index) in event.links" :key="index + 'n'">
+            <div @click="removeUrl(index)" class="attachments-image" v-for="(url,index) in event.medias" :key="index + 'n'">
               <img :src="url"/>
             </div>
           </div>
@@ -127,8 +127,6 @@
 </template>
 
 <script>
-
-import event from '../../../GraphQL/Queries/Dashboard/event.graphql'
 import updateEvent from '../../../GraphQL/Queries/Dashboard/updateEvent.graphql'
 import players from '../../../GraphQL/Queries/Dashboard/players.graphql'
 
@@ -141,14 +139,6 @@ export default {
   },
   data() {
     return {
-      event: {
-        name: '',
-        description: '',
-        date: '',
-        players: [],
-        images: [],
-        season: ''
-      },
       imagesToRemove: [],
       files: [],
       currentPlayer: {
@@ -160,6 +150,11 @@ export default {
       alertMessage: null,
       sentProperly: false,
       alertTimeoutId: null
+    }
+  },
+  computed:{
+    event(){
+      return this.$store.getters.dashboardEvent;
     }
   },
   methods: {
@@ -175,7 +170,7 @@ export default {
 
         let formData = new FormData();
         formData.append("graphql", `{ "query": "${updateEvent.loc.source.body}", "variables": 
-         ${JSON.stringify(this.event)}
+          ${JSON.stringify(this.event)}
         }`);
 
         for(let i = 0;i < this.images.length;i++)
@@ -238,21 +233,21 @@ export default {
       this.displayImages.splice(index,1);
     },
     removeUrl(index) {
-      this.event.links.splice(index,1);
+      this.event.medias.splice(index,1);
       this.displayImages.splice(index,1);
     }
   },
     created() {
-    this.$apollo.query({
-      query: event,
-      variables:
-      {
-        id: this.$route.params.id
-      }
-    }).then(result => {
-     this.event = result.data.event;
-     this.event.links = this.event.medias;
-    });
+    // this.$apollo.query({
+    //   query: event,
+    //   variables:
+    //   {
+    //     id: this.$route.params.id
+    //   }
+    // }).then(result => {
+    //   this.event = result.data.event;
+    // });
+    this.$store.dispatch("dashboardEvent", this.id);
   }
 }
 
