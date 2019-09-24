@@ -1,6 +1,6 @@
 query event($id: Int!)
 {
-  event(id: $id)
+  dashboardEvent: event(id: $id)
   {
     id,
     name,
