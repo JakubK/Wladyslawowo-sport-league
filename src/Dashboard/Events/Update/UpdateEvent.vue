@@ -168,20 +168,7 @@ export default {
         this.event.files = this.files;
         this.event.id = this.$route.params.id
 
-        let formData = new FormData();
-        formData.append("graphql", `{ "query": "${updateEvent.loc.source.body}", "variables": 
-          ${JSON.stringify(this.event)}
-        }`);
-
-        for(let i = 0;i < this.images.length;i++)
-        {
-          formData.append(i, this.images[i]);
-        }
-
-        fetch("http://localhost:5000/api/graphql", {
-          method: 'post',
-          body: formData
-        });
+        this.$store.dispatch("updateEvent", this.event, this.images);
 
         this.goBack();
       }
@@ -237,16 +224,7 @@ export default {
       this.displayImages.splice(index,1);
     }
   },
-    created() {
-    // this.$apollo.query({
-    //   query: event,
-    //   variables:
-    //   {
-    //     id: this.$route.params.id
-    //   }
-    // }).then(result => {
-    //   this.event = result.data.event;
-    // });
+  created() {
     this.$store.dispatch("dashboardEvent", this.id);
   }
 }

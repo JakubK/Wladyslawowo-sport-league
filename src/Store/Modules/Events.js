@@ -10,6 +10,7 @@ import dashboardEvent from '../../GraphQL/Queries/Dashboard/event.graphql'
 import deleteEvent from '../../GraphQL/Queries/Dashboard/deleteEvent.graphql'
 
 import addEvent from '../../GraphQL/Queries/Dashboard/addEvent.graphql'
+import updateEvent from '../../GraphQL/Queries/Dashboard/updateEvent.graphql'
 
 
 export default {
@@ -59,10 +60,16 @@ export default {
       state.events = events;
     },
     addEvent: (state, newEvent) => {
-      state.dashboardEvents.push(newEvent);
+      state.dashboardEvents.push({
+        id: newEvent.id,
+        name: newEvent.name,
+        date: newEvent.date
+      });
     },
     updateEvent: (state, event) => {
-      state.events[state.events.indexOf(event)] = event;
+      let toUpdate = state.dashboardEvents.filter(x => x.id === event.id)[0];
+      console.log(event);
+      state.dashboardEvents[state.dashboardEvents.indexOf(toUpdate)] = event;
     },
     deleteEvent:(state, deleteEvent) =>{
       state.dashboardEvents.splice(state.dashboardEvents.indexOf(deleteEvent),1);      
@@ -128,30 +135,28 @@ export default {
         body: formData
       });   
     },
-    updateEvent: async ({commit}, event) => {
-      if (event.players === undefined) {
-        event.players = [];
+    updateEvent: async ({commit}, event, images) => {
+      let formData = new FormData();
+      formData.append("graphql", `{ "query": "${updateEvent.loc.source.body}", "variables": 
+        ${JSON.stringify(event)}
+      }`);
+      
+      if(images)
+      {
+        for(let i = 0;i < images.length;i++)
+        {
+          formData.append(i, images[i]);
+        }
       }
-      const storageRef = firebase.storage().ref();
-
-      await firebase.database().ref('events').child(event.id).update(event).then(key => {
-        if (event.files) {
-          let putIndex = event.imageUrls.legnth;
-          for (let i = 0;i < event.files.length;i++) {
-            event.files[i] = storageRef.child(`events/${event.id}/${putIndex}`).put(event.files[i]);
-          }
-        }
-      }).then(() => {
-        for (let i = 0;i < event.files.length;i++) {
-          event.files[i].snapshot.ref.getDownloadURL().then(function (downloadURL) {
-            event.imageUrls.push(downloadURL);
-            firebase.database().ref('events').child(event.id).update({imageUrls: event.imageUrls});
-          });
-        }
+      commit("updateEvent", {
+        name: event.name,
+        date: event.date,
+        id: event.id
       });
-
-      await firebase.database().ref('events').child(event.id).update(event);
-      commit('updateEvent', event);
+      await fetch("http://localhost:5000/api/graphql", {
+        method: 'post',
+        body: formData
+      });
     },
     deleteEvent: async ({commit}, event) => {
       commit("deleteEvent", event);
