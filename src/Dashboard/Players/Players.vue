@@ -21,7 +21,7 @@
             <tr v-for="(player, index) in players" :key="player.id">
               <th>{{index}}</th>
               <th>{{player.name}}</th>
-              <th>{{player.settlementName}}</th>
+              <th>{{player.settlement}}</th>
               <th>
                 <div class="table-panel-buttons">
                   <button class="button" type="button" @click="updatePlayer(player)" aria-label="Edytuj" title="Edytuj">
@@ -50,10 +50,7 @@
 <script>
 
 import router from "@/Router/index";
-import players from '../../GraphQL/Queries/Dashboard/players.graphql'
-import deletePlayer from '../../GraphQL/Queries/Dashboard/deletePlayer.graphql'
 
-import gql from 'graphql-tag'
 export default {
   name: "Players",
   data() {
@@ -63,27 +60,20 @@ export default {
       pageSize: 8,
     }
   },
-  apollo:
-  {
-    players: players
-  },
   computed: {
+    players(){
+      return this.$store.getters.dashboardPlayers;
+    },
     pages() {
-      return Math.ceil(this.data.length / this.pageSize);
+      return Math.ceil(this.players.length / this.pageSize);
     },
   },
   created() {
-    this.data = this.$store.getters.players;
+    this.$store.dispatch("dashboardPlayers");
   },
   methods: {
     removePlayer(player) {
-      // this.$store.dispatch('removePlayer', player);
-      this.$apollo.mutate({
-        mutation: deletePlayer,
-        variables:{
-          id: player.id
-        }
-      });
+      this.$store.dispatch('removePlayer', player);
     },
     updatePlayer(player) {
       router.push({name: 'UpdatePlayer', params: {id: player.id}});

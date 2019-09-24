@@ -8,15 +8,23 @@ import players from '../../GraphQL/Queries/Players/players.graphql'
 import player from '../../GraphQL/Queries/Players/player.graphql'
 import topPlayers from '../../GraphQL/Queries/Home/topPlayers.graphql'
 
+import dashboardPlayers from '../../GraphQL/Queries/Dashboard/players.graphql'
+import deletePlayer from '../../GraphQL/Queries/Dashboard/deletePlayer.graphql'
+
 export default {
   state: {
     players: [],
     player:{},
-    topPlayers: []
+    topPlayers: [],
+    dashboardPlayers: [],
+    dashboardPlayer: {}
   },
   events,
   settlements,
   getters: {
+    dashboardPlayers: state =>{
+      return state.dashboardPlayers;
+    },
     topPlayers: state => {
       return state.topPlayers;
     },
@@ -139,6 +147,12 @@ export default {
     }
   },
   mutations: {
+    removePlayer:(state, player) =>{
+      state.dashboardPlayers.splice(state.dashboardPlayers.indexOf(player), 1);
+    },
+    dashboardPlayers:(state, dashboardPlayers) =>{
+      state.dashboardPlayers = dashboardPlayers;
+    },
     topPlayers:(state, topPlayers) => {
       state.topPlayers = topPlayers;
     },
@@ -153,12 +167,16 @@ export default {
     },
     updatePlayer: (state, player) => {
       state.players[state.players.indexOf(player)] = player;
-    },
-    removePlayer: (state, player) => {
-      state.players.splice(state.players.indexOf(player), 1);
-    },
+    }
   },
   actions: {
+    dashboardPlayers: async({commit}) =>{
+      let response = await apolloClient.query({
+        query: dashboardPlayers
+      });
+
+      commit("dashboardPlayers",response.data.dashboardPlayers);
+    },
     topPlayers: async({commit}) =>{
       let response = await apolloClient.query({
         query: topPlayers
@@ -251,13 +269,13 @@ export default {
       commit('updatePlayer', player);
     },
     removePlayer: async ({commit}, player) => {
-      await firebase.database().ref('players').child(player.id).remove();
-
-      if (player.imageUrl) {
-        const storageRef = firebase.storage().ref();
-        await storageRef.child(`players/${player.id}`).delete();
-      }
-      commit('removePlayer', player);
-    },
+      commit("removePlayer", player);
+      await apolloClient.mutate({
+        mutation: deletePlayer,
+        variables:{
+          id: player.id
+        }
+      });
+    }
   }
 }
