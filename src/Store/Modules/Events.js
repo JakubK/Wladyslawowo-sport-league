@@ -9,6 +9,9 @@ import dashboardEvent from '../../GraphQL/Queries/Dashboard/event.graphql'
 
 import deleteEvent from '../../GraphQL/Queries/Dashboard/deleteEvent.graphql'
 
+import addEvent from '../../GraphQL/Queries/Dashboard/addEvent.graphql'
+
+
 export default {
   state: {
     events: [],
@@ -56,7 +59,7 @@ export default {
       state.events = events;
     },
     addEvent: (state, newEvent) => {
-      state.events.push(newEvent);
+      state.dashboardEvents.push(newEvent);
     },
     updateEvent: (state, event) => {
       state.events[state.events.indexOf(event)] = event;
@@ -106,44 +109,24 @@ export default {
 
       commit('events', response.data.events);
     },
-    addEvent: async ({commit}, event) => {
-      const newEvent = {
-        name: event.name,
-        description: event.description,
-        date: event.date,
-        season: event.season
-      };
-
-      let key;
-      let imageUrls = [];
-
-      const data = await firebase.database().ref("events").push(newEvent)
-      key = data.key;
-
-      if (event.images.length > 0) {
-        for (let i = 0;i < event.images.length;i++) {
-          const storageRef = firebase.storage().ref();
-          event.images[i] = storageRef.child(`events/${key}/${i}`).put(event.images[i]);
-
-          event.images[i].on('state_changed', snapshot => {}, error => { console.log(error) }, async () => {
-            let downloadURL = await event.images[i].snapshot.ref.getDownloadURL();
-
-            imageUrls.push(downloadURL);
-            firebase.database().ref('events').child(key).update({imageUrls: imageUrls});
-          });
+    addEvent: async ({commit}, event, images) => {
+      let formData = new FormData();
+      formData.append("graphql", `{ "query": "${addEvent.loc.source.body}", "variables": 
+        ${JSON.stringify(event)}
+      }`);
+      
+      if(images)
+      {
+        for(let i = 0;i < images.length;i++)
+        {
+          formData.append(i, images[i]);
         }
-
-        commit('addEvent', {
-          ...newEvent,
-          imageUrls: imageUrls,
-          id: key
-        });
-      } else {
-        commit('addEvent', {
-          ...newEvent,
-          id: key
-        });
       }
+      commit("addEvent", event);
+      await fetch("http://localhost:5000/api/graphql", {
+        method: 'post',
+        body: formData
+      });   
     },
     updateEvent: async ({commit}, event) => {
       if (event.players === undefined) {
