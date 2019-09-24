@@ -1,18 +1,30 @@
-import players from './Players'
 import {apolloClient} from '../../main'
 
 import events from '../../GraphQL/Queries/Events/events.graphql'
 import event from '../../GraphQL/Queries/Events/event.graphql'
 import topEvents from '../../GraphQL/Queries/Home/topEvents.graphql'
 
+import dashboardEvents from '../../GraphQL/Queries/Dashboard/events.graphql'
+import dashboardEvent from '../../GraphQL/Queries/Dashboard/event.graphql'
+
+import deleteEvent from '../../GraphQL/Queries/Dashboard/deleteEvent.graphql'
+
 export default {
   state: {
     events: [],
     event:{},
-    topEvents: []
+    topEvents: [],
+
+    dashboardEvents: [],
+    dashboardEvent: {}
   },
-  players,
   getters: {
+    dashboardEvent: state =>{
+      return state.dashboardEvent;
+    },
+    dashboardEvents: state =>{
+      return state.dashboardEvents;
+    },
     event: state => {
       return state.event
     },
@@ -28,6 +40,12 @@ export default {
     },
   },
   mutations: {
+    dashboardEvent: (state, dashboardEvent) =>{
+      state.dashboardEvent = dashboardEvent;
+    },
+    dashboardEvents: (state, dashboardEvents) =>{
+      state.dashboardEvents = dashboardEvents;
+    },
     topEvents: (state,topEvents) =>{
       state.topEvents = topEvents;
     },
@@ -43,11 +61,26 @@ export default {
     updateEvent: (state, event) => {
       state.events[state.events.indexOf(event)] = event;
     },
-    removeEvent: (state, event) =>{
-      state.events.splice(state.events.indexOf(event),1);
-    },
+    deleteEvent:(state, deleteEvent) =>{
+      state.dashboardEvents.splice(state.dashboardEvents.indexOf(deleteEvent),1);      
+    }
   },
   actions: {
+    dashboardEvent: async({commit}, id) =>{
+      let response = await apolloClient.query({
+        query: dashboardEvent,
+        variables:{
+          id: id
+        }
+      });
+      commit('dashboardEvent', response.data.dashboardEvent);
+    },
+    dashboardEvents: async({commit}) =>{
+      let response = await apolloClient.query({
+        query: dashboardEvents
+      });
+      commit('dashboardEvents', response.data.dashboardEvents);
+    },
     topEvents: async({commit}) => {
       let response = await apolloClient.query({
         query: topEvents
@@ -78,7 +111,6 @@ export default {
         name: event.name,
         description: event.description,
         date: event.date,
-        players: event.players,
         season: event.season
       };
 
@@ -138,17 +170,14 @@ export default {
       await firebase.database().ref('events').child(event.id).update(event);
       commit('updateEvent', event);
     },
-    removeEvent: async ({commit}, event) => {
-      await firebase.database().ref('events').child(event.id).remove();
-      const storageRef = firebase.storage().ref();
-
-      if (event.imageUrls) {
-        for (let i = 0; i < event.imageUrls.length; i++) {
-         await storageRef.child(`events/${event.id}/${i}`).delete();
-        }
-      }
-
-      commit("removeEvent", event);
+    deleteEvent: async ({commit}, event) => {
+      commit("deleteEvent", event);
+      await apolloClient.mutate({
+          mutation: deleteEvent,
+          variables:{
+            id: event.id
+          }
+        });
     },
   }
 }
