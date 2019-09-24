@@ -68,8 +68,7 @@ export default {
     },
     updateEvent: (state, event) => {
       let toUpdate = state.dashboardEvents.filter(x => x.id === event.id)[0];
-      console.log(event);
-      state.dashboardEvents[state.dashboardEvents.indexOf(toUpdate)] = event;
+      state.dashboardEvents.splice(state.dashboardEvents.indexOf(toUpdate),1,event);
     },
     deleteEvent:(state, deleteEvent) =>{
       state.dashboardEvents.splice(state.dashboardEvents.indexOf(deleteEvent),1);      
@@ -148,11 +147,7 @@ export default {
           formData.append(i, images[i]);
         }
       }
-      commit("updateEvent", {
-        name: event.name,
-        date: event.date,
-        id: event.id
-      });
+      commit("updateEvent", event);
       await fetch("http://localhost:5000/api/graphql", {
         method: 'post',
         body: formData

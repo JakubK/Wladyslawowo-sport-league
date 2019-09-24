@@ -168,9 +168,9 @@ export default {
         this.event.files = this.files;
         this.event.id = this.$route.params.id
 
-        this.$store.dispatch("updateEvent", this.event, this.images);
-
-        this.goBack();
+        this.$store.dispatch("updateEvent", this.event, this.images).then(() =>{
+          this.goBack();
+        });
       }
     },
     addPlayer() {
@@ -187,7 +187,6 @@ export default {
     },
     deletePlayer(index) {
       this.event.scores.splice(index, 1);
-      // this.event.settlementScores.splice(index, 1);
     },
     goBack() {
       this.$store.dispatch('closeModal');
