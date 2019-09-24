@@ -1,11 +1,11 @@
 <template>
   <nav class="navigation">
     <section class="navigation-left">
-      <a role="button" @click="toggleMenu" class="navbar-burger" :class="{'is-active': menu}" aria-control="menu" aria-label="Menu" :aria-expanded="menu ? 'true' : ''">
+      <!-- <a role="button" @click="toggleMenu" class="navbar-burger" :class="{'is-active': menu}" aria-control="menu" aria-label="Menu" :aria-expanded="menu ? 'true' : ''">
         <span aria-hidden="true"></span>
         <span aria-hidden="true"></span>
         <span aria-hidden="true"></span>
-      </a>
+      </a> -->
       <figure class="navigation-logo">
         <router-link to="/panel/" aria-label="Open panel homepage">
           <img src="@/Assets/logo.jpg" alt="Liga sportowa gminy Władysławowo"/>
@@ -22,10 +22,10 @@
     </section>
     <section class="navigation-right">
       <div class="navigation-panel">
-        <p class="navigation-panel-user">{{user.email}}</p>
+        <!-- <p class="navigation-panel-user">{{user.email}}</p> -->
         <button @click="logout" class="navigation-panel-logout" type="button" aria-label="Wyloguj się" title="Wyloguj się">
           <svg enable-background="new 0 0 512 512" version="1.1" viewBox="0 0 512 512" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
-	          <path d="m320 73.294v67.979c18.104 7.902 34.75 19.204 49.137 33.59 30.22 30.22 46.863 70.4 46.863 113.14 0 42.736-16.643 82.917-46.863 113.14-30.221 30.22-70.399 46.863-113.14 46.863s-82.917-16.643-113.14-46.863-46.863-70.401-46.863-113.14c0-42.737 16.643-82.917 46.863-113.14 14.387-14.387 31.034-25.689 49.137-33.591v-67.978c-92.524 27.54-160 113.24-160 214.71 0 123.71 100.29 224 224 224 123.71 0 224-100.29 224-224 0-101.47-67.475-187.17-160-214.71zm-96-73.294h64v256h-64v-256z"/>
+            <path d="m320 73.294v67.979c18.104 7.902 34.75 19.204 49.137 33.59 30.22 30.22 46.863 70.4 46.863 113.14 0 42.736-16.643 82.917-46.863 113.14-30.221 30.22-70.399 46.863-113.14 46.863s-82.917-16.643-113.14-46.863-46.863-70.401-46.863-113.14c0-42.737 16.643-82.917 46.863-113.14 14.387-14.387 31.034-25.689 49.137-33.591v-67.978c-92.524 27.54-160 113.24-160 214.71 0 123.71 100.29 224 224 224 123.71 0 224-100.29 224-224 0-101.47-67.475-187.17-160-214.71zm-96-73.294h64v256h-64v-256z"/>
           </svg>
         </button>
       </div>
@@ -35,7 +35,7 @@
 
 <script>
 
-import { mapGetters } from "vuex"
+// import { mapGetters } from "vuex"
 
 export default {
   name: "Navigation",
@@ -57,12 +57,12 @@ export default {
       }
     }
   },
-  computed: {
-    ...mapGetters([
-      "menu",
-      "user"
-    ])
-  }
+  // computed: {
+  //   ...mapGetters([
+  //     "menu",
+  //     "user"
+  //   ])
+  // }
 }
 
 </script>
