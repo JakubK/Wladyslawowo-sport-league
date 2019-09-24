@@ -122,7 +122,6 @@
 </template>
 
 <script>
-import addEvent from '../../../GraphQL/Queries/Dashboard/addEvent.graphql'
 import players from '../../../GraphQL/Queries/Dashboard/players.graphql'
 
 export default {
@@ -166,21 +165,7 @@ export default {
 
       const valid = await this.$validator.validateAll();
       if (valid) {
-        // this.$store.dispatch('addEvent', this.event);
-        let formData = new FormData();
-        formData.append("graphql", `{ "query": "${addEvent.loc.source.body}", "variables": 
-         ${JSON.stringify(this.event)}
-        }`);
-
-        for(let i = 0;i < this.images.length;i++)
-        {
-          formData.append(i, this.images[i]);
-        }
-
-        fetch("http://localhost:5000/api/graphql", {
-          method: 'post',
-          body: formData
-        });   
+        this.$store.dispatch('addEvent', this.event, this.images);
 
         this.sentProperly = true;
         this.alertMessage = "Pomyślnie dodano nową imprezę"
