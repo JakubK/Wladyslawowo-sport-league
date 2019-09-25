@@ -62,14 +62,8 @@
 </template>
 
 <script>
-import settlements from '../../../GraphQL/Queries/Dashboard/settlements.graphql'
-import gql from 'graphql-tag'
-
 export default {
   name: "AddPlayer",
-  apollo:{
-    settlements: settlements
-  },
   data() {
     return {
       player: {
@@ -118,7 +112,7 @@ export default {
 
       this.createImage(files[0]);
     },
-     createImage(file) {
+    createImage(file) {
       let image = new Image();
       let reader = new FileReader();
       let vm = this;
@@ -144,10 +138,13 @@ export default {
     },
   },
   computed: {
-    // settlements() {
-    //   return this.$store.getters.settlements;
-    // }
+    settlements() {
+      return this.$store.getters.dashboardSettlements;
+    }
   },
+  created(){
+    this.$store.dispatch("dashboardSettlements");
+  }
 }
 
 </script>

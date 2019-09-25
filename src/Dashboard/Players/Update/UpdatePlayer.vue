@@ -64,20 +64,11 @@
 </template>
 
 <script>
-import settlements from '../../../GraphQL/Queries/Dashboard/settlements.graphql'
-import player from '../../../GraphQL/Queries/Dashboard/player.graphql'
-import updatePlayer from '../../../GraphQL/Queries/Dashboard/updatePlayer.graphql'
-
 export default {
   name: "UpdatePlayer",
   props: ['id'],
-  apollo:
-  {
-    settlements: settlements
-  },
   data() {
     return {
-      player: {},
       image: '',
       displayImage: '',
       settlement: "",
@@ -91,22 +82,7 @@ export default {
       const valid = await this.$validator.validateAll();
 
       if (valid) {
-        // this.player.settlement = this.settlement;
-        // this.player.settlementId = this.settlementId(this.player.settlement);
-        // this.$store.dispatch('updatePlayer',this.player);
-
-        let formData = new FormData();
-        formData.append("graphql", `{ "query": "${updatePlayer.loc.source.body}", "variables": 
-         ${JSON.stringify(this.player)}
-        }`);
-
-        formData.append(0,this.image);        
-
-        fetch("http://localhost:5000/api/graphql", {
-          method: 'post',
-          body: formData
-        });
-
+        this.$store.dispatch('updatePlayer',this.player, this.image);
         this.closeModal();
       }
     },
@@ -138,33 +114,19 @@ export default {
     closeModal() {
       this.$store.dispatch('closeModal');
     },
-    settlementId(settlementName) {
-      for (let i = 0; i < this.settlements.length ;i++) {
-        if (this.settlements[i].name == settlementName) {
-          return this.settlements[i].id;
-        }
-      }
+  },
+  computed: {
+    settlements() {
+      return this.$store.getters.dashboardSettlements;
+    },
+    player(){
+      return this.$store.getters.dashboardPlayer;
     }
   },
-  // computed: {
-    // settlements() {
-    //   return this.$store.getters.settlements;
-    // }
-  // },
   created() {
-    // const player = this.$store.getters.player(this.$route.params.id);
-    // this.player = player[0];
-    // this.settlement = this.player.settlement;
-    this.$apollo.query({
-      query: player,
-      variables:
-      {
-        id: this.$route.params.id
-      }
-    }).then(result => {
-     this.player = result.data.player;
-    });
-   }
+    this.$store.dispatch("dashboardPlayer", this.id);
+    this.$store.dispatch("dashboardSettlements");
+  }
 }
 
 </script>

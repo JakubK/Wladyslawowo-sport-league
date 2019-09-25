@@ -9,8 +9,10 @@ import player from '../../GraphQL/Queries/Players/player.graphql'
 import topPlayers from '../../GraphQL/Queries/Home/topPlayers.graphql'
 
 import dashboardPlayers from '../../GraphQL/Queries/Dashboard/players.graphql'
+import dashboardPlayer from '../../GraphQL/Queries/Dashboard/player.graphql'
 import deletePlayer from '../../GraphQL/Queries/Dashboard/deletePlayer.graphql'
 import addPlayer from '../../GraphQL/Queries/Dashboard/addPlayer.graphql'
+import updatePlayer from '../../GraphQL/Queries/Dashboard/updatePlayer.graphql'
 
 export default {
   state: {
@@ -23,6 +25,9 @@ export default {
   events,
   settlements,
   getters: {
+    dashboardPlayer: state =>{
+      return state.dashboardPlayer;
+    },
     dashboardPlayers: state =>{
       return state.dashboardPlayers;
     },
@@ -148,6 +153,9 @@ export default {
     }
   },
   mutations: {
+    dashboardPlayer:(state, dashboardPlayer) => {
+      state.dashboardPlayer = dashboardPlayer;
+    },
     removePlayer:(state, player) =>{
       state.dashboardPlayers.splice(state.dashboardPlayers.indexOf(player), 1);
     },
@@ -171,6 +179,16 @@ export default {
     }
   },
   actions: {
+    dashboardPlayer: async({commit}, id) =>{
+      let response = await apolloClient.query({
+        query: dashboardPlayer,
+        variables:{
+          id: id
+        }
+      });
+
+      commit("dashboardPlayer",response.data.dashboardPlayer);
+    },
     dashboardPlayers: async({commit}) =>{
       let response = await apolloClient.query({
         query: dashboardPlayers
@@ -215,34 +233,18 @@ export default {
           body: formData
         });   
     },
-    updatePlayer: async ({commit}, player) => {
-      let editedImage = player.img !== undefined;
-      let file, uploadImg, imageUrl, storageRef;
+    updatePlayer: async ({commit}, player, image) => {
+      let formData = new FormData();
+      formData.append("graphql", `{ "query": "${updatePlayer.loc.source.body}", "variables": 
+        ${JSON.stringify(player)}
+      }`);
 
-      if (player.imageUrl === undefined) {
-        player.imageUrl = null;
-      }
-
-      await firebase.database().ref('players').child(player.id).update(player);
-
-      if (editedImage) {
-        file = player.img.name;
-        uploadImg = player.img;
-        storageRef = firebase.storage().ref();
-
-        uploadImg = storageRef.child(`players/${player.id}`).put(uploadImg);
-        let downloadURL = await uploadImg.snapshot.ref.getDownloadURL();
-
-        if (downloadURL === undefined) {
-          downloadURL = null;
-        }
-
-        imageUrl = downloadURL;
-        await firebase.database().ref('players').child(player.id).update({imageUrl: imageUrl});
-        player.imageUrl = imageUrl;
-      }
-
-      commit('updatePlayer', player);
+      formData.append(0,image);        
+      commit("updatePlayer", player);
+      fetch("http://localhost:5000/api/graphql", {
+        method: 'post',
+        body: formData
+      });
     },
     removePlayer: async ({commit}, player) => {
       commit("removePlayer", player);
