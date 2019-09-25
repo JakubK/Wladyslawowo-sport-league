@@ -10,6 +10,7 @@ import topPlayers from '../../GraphQL/Queries/Home/topPlayers.graphql'
 
 import dashboardPlayers from '../../GraphQL/Queries/Dashboard/players.graphql'
 import deletePlayer from '../../GraphQL/Queries/Dashboard/deletePlayer.graphql'
+import addPlayer from '../../GraphQL/Queries/Dashboard/addPlayer.graphql'
 
 export default {
   state: {
@@ -163,7 +164,7 @@ export default {
       state.players = players;
     },
     addPlayer: (state, newPlayer) => {
-      state.players.push(newPlayer);
+      state.dashboardPlayers.push(newPlayer);
     },
     updatePlayer: (state, player) => {
       state.players[state.players.indexOf(player)] = player;
@@ -201,43 +202,10 @@ export default {
       commit('players', response.data.players);
     },
     addPlayer: async ({commit}, player) => {
-      let imageUrl;
-      let key;
-      let uploadImg = player.img;
-
-      const newPlayer = {
-        name: player.name,
-        settlement: player.settlement,
-        settlementId: player.settlementId,
-      };
-
-      const data = firebase.database().ref("players").push(newPlayer);
-      key = data.key;
-
-      if (uploadImg) {
-        const storageRef = firebase.storage().ref();
-        uploadImg = storageRef.child(`players/${key}`).put(uploadImg);
-
-        uploadImg.on('state_changed', snapshot => {}, error => console.log(error), async () => {
-          const downloadURL = await uploadImg.snapshot.ref.getDownloadURL();
-          imageUrl = downloadURL;
-
-          firebase.database().ref('players').child(key).update({imageUrl: imageUrl});
-
-          commit('addPlayer', {
-            ...newPlayer,
-            imageUrl: imageUrl,
-            id: key,
-          });
-        });
-      } else {
-        await firebase.database().ref('players').child(key).update({key: key});
-
-        commit('addPlayer', {
-          ...newPlayer,
-          id: key,
-        });
-      }
+      commit("addPlayer", player);
+      await apolloClient.query({
+        query: addPlayer
+      });
     },
     updatePlayer: async ({commit}, player) => {
       let editedImage = player.img !== undefined;

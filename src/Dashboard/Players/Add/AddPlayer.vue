@@ -63,7 +63,6 @@
 
 <script>
 import settlements from '../../../GraphQL/Queries/Dashboard/settlements.graphql'
-import addPlayer from '../../../GraphQL/Queries/Dashboard/addPlayer.graphql'
 import gql from 'graphql-tag'
 
 export default {
@@ -98,7 +97,7 @@ export default {
         //this.$store.dispatch('addPlayer', this.player);
         let formData = new FormData();
         formData.append("graphql", `{ "query": "${addPlayer.loc.source.body}", "variables": 
-         ${JSON.stringify(this.player)}
+          ${JSON.stringify(this.player)}
         }`);
 
         formData.append(0,this.image);
