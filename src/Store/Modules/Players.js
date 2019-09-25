@@ -201,11 +201,19 @@ export default {
       });
       commit('players', response.data.players);
     },
-    addPlayer: async ({commit}, player) => {
+    addPlayer: async ({commit}, player, image) => {
       commit("addPlayer", player);
-      await apolloClient.query({
-        query: addPlayer
-      });
+      let formData = new FormData();
+        formData.append("graphql", `{ "query": "${addPlayer.loc.source.body}", "variables": 
+          ${JSON.stringify(player)}
+        }`);
+
+        formData.append(0,image);
+
+        fetch("http://localhost:5000/api/graphql", {
+          method: 'post',
+          body: formData
+        });   
     },
     updatePlayer: async ({commit}, player) => {
       let editedImage = player.img !== undefined;

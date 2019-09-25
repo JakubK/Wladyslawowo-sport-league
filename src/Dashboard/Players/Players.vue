@@ -18,7 +18,7 @@
           </tr>
           </thead>
           <transition-group tag="tbody" name="fade">
-            <tr v-for="(player, index) in players" :key="player.id">
+            <tr v-for="(player, index) in players" :key="index">
               <th>{{index}}</th>
               <th>{{player.name}}</th>
               <th>{{player.settlement}}</th>

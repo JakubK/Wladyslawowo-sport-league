@@ -93,23 +93,7 @@ export default {
       if (valid) {
         this.player.settlement = this.settlement;
         this.player.settlementId = this.settlementId(this.player.settlement);
-        
-        //this.$store.dispatch('addPlayer', this.player);
-        let formData = new FormData();
-        formData.append("graphql", `{ "query": "${addPlayer.loc.source.body}", "variables": 
-          ${JSON.stringify(this.player)}
-        }`);
-
-        formData.append(0,this.image);
-
-        fetch("http://localhost:5000/api/graphql", {
-          method: 'post',
-          body: formData
-        });   
-
-        for (let key in this.player) {
-          this.player[key] = '';
-        }
+        this.$store.dispatch('addPlayer', this.player, this.image);
 
         this.sentProperly = true;
         this.alertMessage = "Pomyślnie dodano nowego gracza"
