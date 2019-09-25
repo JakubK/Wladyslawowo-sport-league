@@ -17,7 +17,7 @@
           </tr>
           </thead>
           <transition-group tag="tbody" name="fade">
-            <tr v-for="(settlement, index) in settlements" :key="settlement.id">
+            <tr v-for="(settlement, index) in settlements" :key="index">
               <th>{{index}}</th>
               <th>{{settlement.name}}</th>
               <th>
@@ -45,10 +45,6 @@
 </template>
 
 <script>
-import settlements from '../../GraphQL/Queries/Dashboard/settlements.graphql'
-import deleteSettlement from '../../GraphQL/Queries/Dashboard/deleteSettlement.graphql'
-
-import gql from 'graphql-tag'
 export default {
   name: "Settlements",
   data() {
@@ -57,24 +53,20 @@ export default {
       pageSize: 8,
     }
   },
-  apollo:
-  {
-    settlements: settlements
+  created(){
+    this.$store.dispatch("dashboardSettlements");
   },
   computed: {
+    settlements(){
+      return this.$store.getters.dashboardSettlements;
+    },
     pages() {
       return Math.ceil(this.settlements.length / this.pageSize);
     },
   },
   methods: {
     removeSettlement(settlement) {
-      //this.$store.dispatch('removeSettlement',settlement);
-      this.$apollo.mutate({
-        mutation: deleteSettlement,
-        variables:{
-          id: settlement.id
-        }
-      });
+      this.$store.dispatch('removeSettlement',settlement);
     },
     updateSettlement(settlement) {
       this.$router.push({name: "UpdateSettlement", params: {id: settlement.id}});

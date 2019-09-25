@@ -10,6 +10,8 @@ import settlement from '../../GraphQL/Queries/Settlements/settlement.graphql'
 import topSettlements from '../../GraphQL/Queries/Home/topSettlements.graphql'
 
 import dashboardSettlements from '../../GraphQL/Queries/Dashboard/settlements.graphql'
+import deleteSettlement from '../../GraphQL/Queries/Dashboard/deleteSettlement.graphql'
+import addSettlement from '../../GraphQL/Queries/Dashboard/addSettlement.graphql'
 
 export default {
   state: {
@@ -141,7 +143,7 @@ export default {
       state.settlements = settlements;
     },
     addSettlement: (state, newSettlement) => {
-      state.settlements.push(newSettlement);
+      state.dashboardSettlements.push(newSettlement);
     },
     updateSettlement: (state, settlement) => {
       let result = state.settlements.find(item => item.id === settlement.id);
@@ -150,7 +152,7 @@ export default {
       Vue.set(state.settlements, index, settlement);
     },
     removeSettlement: (state, settlement) => {
-      state.settlements.splice(state.settlements.indexOf(settlement), 1);
+      state.dashboardSettlements.splice(state.dashboardSettlements.indexOf(settlement), 1);
     }
   },
   actions: {
@@ -185,42 +187,19 @@ export default {
 
       commit('settlements', response.data.settlements);
     },
-    addSettlement: async ({commit}, settlement) => {
-      const newSettlement = {
-        name: settlement.name,
-        description: settlement.description
-      };
+    addSettlement: async ({commit}, settlement, image) => {
+      let formData = new FormData();
+        formData.append("graphql", `{ "query": "${addSettlement.loc.source.body}", "variables": 
+          ${JSON.stringify(settlement)}
+        }`);
 
-      let imageUrl;
-      let key;
-      let uploadImg = settlement.img;
-
-      const data = await firebase.database().ref("settlements").push(newSettlement);
-      key = data.key;
-
-      if (uploadImg) {
-        const storageRef = firebase.storage().ref();
-        uploadImg = storageRef.child(`settlements/${key}`).put(uploadImg);
-
-        uploadImg.on('state_changed', snapshot => {}, error => console.log(error), async () => {
-          let downloadURL = await uploadImg.snapshot.ref.getDownloadURL();
-          imageUrl = downloadURL;
-          firebase.database().ref('settlements').child(key).update({imageUrl: imageUrl});
-
-          commit('addSettlement', {
-            ...newSettlement,
-            imageUrl: imageUrl,
-            id: key,
-          });
-        });
-      } else {
-        await firebase.database().ref('settlements').child(key).update({key: key});
-
-        commit('addSettlement', {
-          ...newSettlement,
-          id: key,
-        });
-      }
+        formData.append(0,image);
+        commit("addSettlement", settlement);
+        fetch("http://localhost:5000/api/graphql", {
+          method: 'post',
+          body: formData
+        });   
+        
     },
     updateSettlement: async ({commit}, settlement) => {
       let editedImage = settlement.img !== undefined;
@@ -252,14 +231,13 @@ export default {
       commit('updateSettlement', settlement);
     },
     removeSettlement: async ({commit}, settlement) => {
-      await firebase.database().ref('settlements').child(settlement.id).remove();
-
-      if (settlement.imageUrl !== undefined) {
-        const storageRef = firebase.storage().ref();
-        await storageRef.child(`settlements/${settlement.id}`).delete();
-      }
-
-      commit('removeSettlement', settlement);
+      commit("removeSettlement", settlement);
+      apolloClient.mutate({
+        mutation: deleteSettlement,
+        variables:{
+          id: settlement.id
+        }
+      });
     },
   }
 }
