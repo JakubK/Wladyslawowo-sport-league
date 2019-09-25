@@ -9,15 +9,22 @@ import settlements from '../../GraphQL/Queries/Settlements/settlements.graphql'
 import settlement from '../../GraphQL/Queries/Settlements/settlement.graphql'
 import topSettlements from '../../GraphQL/Queries/Home/topSettlements.graphql'
 
+import dashboardSettlements from '../../GraphQL/Queries/Dashboard/settlements.graphql'
+
 export default {
   state: {
     settlements: [],
     settlement: {},
-    topSettlements: []
+    topSettlements: [],
+
+    dashboardSettlements: []
   },
   players,
   events,
   getters: {
+    dashboardSettlements: state =>{
+      return state.dashboardSettlements;
+    },
     settlement: state => {
       return state.settlement;
     },
@@ -56,11 +63,9 @@ export default {
     {
       let result = [];
       let playersOfSettlement = players.getters.players(players.state).filter(player => player.settlementId === id);
-      console.log(playersOfSettlement);
       for(let i = 0;i < playersOfSettlement.length;i++)
       {
         let playerDetails = players.getters.briefPlayerById(players.state, playersOfSettlement[i].id);
-        console.log(playerDetails);
         for(let j = 0;j < playerDetails.playedEvents.length;j++)
         {
           if(playerDetails.playedEvents[j].season == season)
@@ -123,6 +128,9 @@ export default {
     }
   },
   mutations: {
+    dashboardSettlements: (state,dashboardSettlements) => {
+      state.dashboardSettlements = dashboardSettlements;
+    },
     topSettlements:(state, topSettlements) => {
       state.topSettlements = topSettlements;
     },
@@ -146,6 +154,12 @@ export default {
     }
   },
   actions: {
+    dashboardSettlements: async({commit}) => {
+      let response = await apolloClient.query({
+        query: dashboardSettlements
+      });
+      commit('dashboardSettlements', response.data.dashboardSettlements);
+    },
     topSettlements: async({commit}) =>{
       let response = await apolloClient.query({
         query: topSettlements
