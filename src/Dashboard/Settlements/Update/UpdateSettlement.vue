@@ -43,7 +43,7 @@
                 </label>
               </div>
             </div>
-             <div v-if="displayImage">
+            <div v-if="displayImage">
               <img class="attachment-image" :src="displayImage"/>
             </div>
             <div v-else-if="settlement.media">
@@ -61,18 +61,11 @@
 </template>
 
 <script>
-import settlement from '../../../GraphQL/Queries/Dashboard/settlement.graphql'
-import updateSettlement from '../../../GraphQL/Queries/Dashboard/updateSettlement.graphql'
-
 export default {
   name: "UpdateSettlement",
   props: ['id'],
   data() {
     return {
-      settlement: {
-        name: "",
-        description: ""
-      },
       image: '',
       displayImage: '',
       alertMessage: null,
@@ -83,19 +76,7 @@ export default {
   methods: {
     async handleSubmit()
     {
-      // this.$store.dispatch('updateSettlement',this.settlement);
-      let formData = new FormData();
-        formData.append("graphql", `{ "query": "${updateSettlement.loc.source.body}", "variables": 
-         ${JSON.stringify(this.settlement)}
-        }`);
-
-        formData.append(0,this.image);        
-
-        fetch("http://localhost:5000/api/graphql", {
-          method: 'post',
-          body: formData
-        });
-
+      this.$store.dispatch('updateSettlement',{ settlement: this.settlement, image: this.image});
       this.closeModal();
     },
     onFileSelected(event) {
@@ -107,7 +88,7 @@ export default {
       this.createImage(files[0]);
 
     },
-     createImage(file) {
+    createImage(file) {
       var image = new Image();
       var reader = new FileReader();
       var vm = this;
@@ -125,16 +106,13 @@ export default {
       this.alertMessage = null;
     }
   },
-  mounted()
-  {
-    this.$apollo.query({
-      query: settlement,
-      variables:{
-        id: this.$route.params.id
-      }
-    }).then(result => {
-      this.settlement = result.data.settlement;
-    });
+  created(){
+    this.$store.dispatch("dashboardSettlement", this.id);
+  },
+  computed:{
+    settlement(){
+      return this.$store.getters.dashboardSettlement;
+    }
   }
 }
 

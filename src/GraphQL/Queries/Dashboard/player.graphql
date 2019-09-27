@@ -1,11 +1,11 @@
 query player($id: Int!)
 {
-  player(id: $id)
+  dashboardPlayer: player(id: $id)
   {
     id,
     name,
     media,
-    settlementName,
+    settlement,
     settlementId
   }
 }

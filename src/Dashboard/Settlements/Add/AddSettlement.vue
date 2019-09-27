@@ -58,9 +58,6 @@
 </template>
 
 <script>
-
-import addSettlement from '../../../GraphQL/Queries/Dashboard/addSettlement.graphql'
-
 export default {
   name: "AddSettlement",
   data() {
@@ -85,21 +82,7 @@ export default {
 
       if (valid) 
       {
-        // this.$store.dispatch('addSettlement', this.settlement);
-        let formData = new FormData();
-        formData.append("graphql", `{ "query": "${addSettlement.loc.source.body}", "variables": 
-         ${JSON.stringify(this.settlement)}
-        }`);
-
-        formData.append(0,this.image);
-
-        fetch("http://localhost:5000/api/graphql", {
-          method: 'post',
-          body: formData
-        });   
-        for (let key in this.settlement) {
-          this.settlement[key] = '';
-        }
+        this.$store.dispatch('addSettlement', {settlement: this.settlement, image: this.image});
         this.sentProperly = true;
         this.alertMessage = "Pomyślnie dodano nową dzielnicę lub wieś"
 
@@ -122,7 +105,7 @@ export default {
       this.createImage(files[0]);
 
     },
-     createImage(file) {
+    createImage(file) {
       var image = new Image();
       var reader = new FileReader();
       var vm = this;

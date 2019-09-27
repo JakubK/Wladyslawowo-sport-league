@@ -62,15 +62,8 @@
 </template>
 
 <script>
-import settlements from '../../../GraphQL/Queries/Dashboard/settlements.graphql'
-import addPlayer from '../../../GraphQL/Queries/Dashboard/addPlayer.graphql'
-import gql from 'graphql-tag'
-
 export default {
   name: "AddPlayer",
-  apollo:{
-    settlements: settlements
-  },
   data() {
     return {
       player: {
@@ -94,23 +87,7 @@ export default {
       if (valid) {
         this.player.settlement = this.settlement;
         this.player.settlementId = this.settlementId(this.player.settlement);
-        
-        //this.$store.dispatch('addPlayer', this.player);
-        let formData = new FormData();
-        formData.append("graphql", `{ "query": "${addPlayer.loc.source.body}", "variables": 
-         ${JSON.stringify(this.player)}
-        }`);
-
-        formData.append(0,this.image);
-
-        fetch("http://localhost:5000/api/graphql", {
-          method: 'post',
-          body: formData
-        });   
-
-        for (let key in this.player) {
-          this.player[key] = '';
-        }
+        this.$store.dispatch('addPlayer', {player: this.player, image: this.image});
 
         this.sentProperly = true;
         this.alertMessage = "Pomyślnie dodano nowego gracza"
@@ -135,7 +112,7 @@ export default {
 
       this.createImage(files[0]);
     },
-     createImage(file) {
+    createImage(file) {
       let image = new Image();
       let reader = new FileReader();
       let vm = this;
@@ -161,10 +138,13 @@ export default {
     },
   },
   computed: {
-    // settlements() {
-    //   return this.$store.getters.settlements;
-    // }
+    settlements() {
+      return this.$store.getters.dashboardSettlements;
+    }
   },
+  created(){
+    this.$store.dispatch("dashboardSettlements");
+  }
 }
 
 </script>

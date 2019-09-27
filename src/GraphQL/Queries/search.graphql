@@ -1,0 +1,21 @@
+query search($phrase: String!){
+  players: findPlayers(phrase: $phrase){
+    id,
+    name,
+    settlement
+  },
+  events: findEvents(phrase: $phrase){
+    id,
+    name,
+    date
+  },
+  newses: findNewses(phrase: $phrase){
+    id,
+    name,
+    date
+  },
+  settlements: findSettlements(phrase: $phrase){
+    id,
+    name
+  },
+}

@@ -1,8 +1,8 @@
 query players
 {
-  players{
+  dashboardPlayers: players{
     id,
     name,
-    settlementName
+    settlement
   }
 }

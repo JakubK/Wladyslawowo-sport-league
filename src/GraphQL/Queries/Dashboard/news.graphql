@@ -1,6 +1,6 @@
 query news($id: Int!)
 {
-  newse(id: $id)
+  dashboardNews: newse(id: $id)
   {
     id,
     name,

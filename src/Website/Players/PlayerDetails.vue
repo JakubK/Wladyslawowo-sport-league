@@ -101,17 +101,13 @@
 	</main>
 </template>
 <script>
-import player from '../../GraphQL/Queries/Players/player.graphql'
-import gql from 'graphql-tag'
-
 export default {
 	props: ['id'],
 	name: "PlayerDetails",
 	data()
 	{
 		return{
-			season: 0,
-			player: {}
+			season: 0
 		};
 	},
 	methods:
@@ -125,6 +121,9 @@ export default {
 		}
 	},
 	computed:{
+		player(){
+			return this.$store.getters.player;
+		},
 		seasonData(){
 			return this.player.events.filter(x => x.event.season === this.season);
 		},
@@ -135,16 +134,10 @@ export default {
 			}));
 		}
 	},
-	mounted(){
-		this.$apollo.query({
-			query: player,
-			variables:{
-				id: this.id
-			}
-		}).then(result => {
-			this.player = result.data.player;
+	created(){
+		this.$store.dispatch("player", this.id).then(() => {
 			this.setSeason(this.lastSeason);
-		})
+		});
 	}
 }
 </script>

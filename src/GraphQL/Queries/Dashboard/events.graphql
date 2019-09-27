@@ -1,6 +1,6 @@
 query events
 {
-  events{
+  dashboardEvents: events{
     id,
     name,
     date

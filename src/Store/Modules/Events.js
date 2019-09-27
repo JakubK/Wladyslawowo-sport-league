@@ -1,184 +1,165 @@
-import firebase from 'firebase';
-import players from './Players'
+import {apolloClient} from '../../main'
+
+import events from '../../GraphQL/Queries/Events/events.graphql'
+import event from '../../GraphQL/Queries/Events/event.graphql'
+import topEvents from '../../GraphQL/Queries/Home/topEvents.graphql'
+
+import dashboardEvents from '../../GraphQL/Queries/Dashboard/events.graphql'
+import dashboardEvent from '../../GraphQL/Queries/Dashboard/event.graphql'
+
+import deleteEvent from '../../GraphQL/Queries/Dashboard/deleteEvent.graphql'
+
+import addEvent from '../../GraphQL/Queries/Dashboard/addEvent.graphql'
+import updateEvent from '../../GraphQL/Queries/Dashboard/updateEvent.graphql'
 
 export default {
   state: {
     events: [],
+    event:{},
+    topEvents: [],
+
+    dashboardEvents: [],
+    dashboardEvent: {}
   },
-  players,
   getters: {
-    event: state => id =>
-    {
-      let ev = state.events.filter(x => x.id == id)[0];
-      let pointMap = new Map();
-      let pl = players.getters.players(players.state);
-      // assign settlements to the players
-
-      if(ev){
-        if(ev.players !== undefined){
-          ev.players.forEach((eventPlayer) => {
-            for(let i = 0;i < pl.length;i++){
-              if(eventPlayer.name === pl[i].name){
-                eventPlayer.settlement = pl[i].settlement;
-                break;
-              }
-            }
-            if(pointMap.get(eventPlayer.settlement) !== undefined)
-              pointMap.set(eventPlayer.settlement, pointMap.get(eventPlayer.settlement) + eventPlayer.points);
-            else
-              pointMap.set(eventPlayer.settlement, eventPlayer.points);    
-          });    
-        }
-      } 
-
-      let settlementScores = [];
-
-      let keys = [...pointMap.keys()];
-      keys.forEach((key) => {
-        settlementScores.push({
-          key: key,
-          value: pointMap.get(key)
-        });
-      })
-
-      settlementScores = settlementScores.sort((a,b) =>{
-        if(a.value > b.value)
-        {
-          return -1;
-        }else if(b.value > a.value)
-        {
-          return 1;
-        }
-        return 0;
-      });
-
-      if(ev) ev.settlementScores = settlementScores;
-
-      return ev;
+    dashboardEvent: state =>{
+      return state.dashboardEvent;
+    },
+    dashboardEvents: state =>{
+      return state.dashboardEvents;
+    },
+    event: state => {
+      return state.event
     },
     topEvents: state => {
-      const result = state.events.sort((a, b) => {
+      const result = state.topEvents.sort((a, b) => {
         return new Date(b.date) - new Date(a.date);
       });
 
-      return result.slice(0,5);
+      return result;
     },
     events: state => {
       return state.events;
     },
   },
   mutations: {
+    dashboardEvent: (state, dashboardEvent) =>{
+      state.dashboardEvent = dashboardEvent;
+    },
+    dashboardEvents: (state, dashboardEvents) =>{
+      state.dashboardEvents = dashboardEvents;
+    },
+    topEvents: (state,topEvents) =>{
+      state.topEvents = topEvents;
+    },
+    event: (state,event) => {
+      state.event = event;
+    },
     events: (state, events) => {
       state.events = events;
     },
     addEvent: (state, newEvent) => {
-      state.events.push(newEvent);
+      state.dashboardEvents.push({
+        id: newEvent.id,
+        name: newEvent.name,
+        date: newEvent.date
+      });
     },
     updateEvent: (state, event) => {
-      state.events[state.events.indexOf(event)] = event;
+      let toUpdate = state.dashboardEvents.filter(x => x.id === event.id)[0];
+      state.dashboardEvents.splice(state.dashboardEvents.indexOf(toUpdate),1,event);
     },
-    removeEvent: (state, event) =>{
-      state.events.splice(state.events.indexOf(event),1);
-    },
+    deleteEvent:(state, deleteEvent) =>{
+      state.dashboardEvents.splice(state.dashboardEvents.indexOf(deleteEvent),1);      
+    }
   },
   actions: {
+    dashboardEvent: async({commit}, id) =>{
+      let response = await apolloClient.query({
+        query: dashboardEvent,
+        variables:{
+          id: id
+        }
+      });
+      commit('dashboardEvent', response.data.dashboardEvent);
+    },
+    dashboardEvents: async({commit}) =>{
+      let response = await apolloClient.query({
+        query: dashboardEvents
+      });
+      commit('dashboardEvents', response.data.dashboardEvents);
+    },
+    topEvents: async({commit}) => {
+      let response = await apolloClient.query({
+        query: topEvents
+      });
+
+      commit('topEvents', response.data.topEvents);
+    },
+    event: async({commit}, id) => {
+      let response = await apolloClient.query({
+        query: event,
+        variables:{
+          id: id
+        }
+      });
+
+      commit('event', response.data.event);
+    },
     events: async ({commit}) => {
-      const data = await firebase.database().ref('events').once('value');
-      let events = [];
-      const dataValue = data.val();
 
-      Object.keys(dataValue).forEach(itemKey => {
-        events.push({
-          id: itemKey,
-          name: dataValue[itemKey].name,
-          description: dataValue[itemKey].description,
-          players: dataValue[itemKey].players,
-          date: dataValue[itemKey].date,
-          imageUrls: dataValue[itemKey].imageUrls,
-          season: dataValue[itemKey].season
-        })
+      let response = await apolloClient.query({
+        query: events
       });
 
-      commit('events', events);
+      commit('events', response.data.events);
     },
-    addEvent: async ({commit}, event) => {
-      const newEvent = {
-        name: event.name,
-        description: event.description,
-        date: event.date,
-        players: event.players,
-        season: event.season
-      };
-
-      let key;
-      let imageUrls = [];
-
-      const data = await firebase.database().ref("events").push(newEvent)
-      key = data.key;
-
-
-
-      if (event.images.length > 0) {
-        for (let i = 0;i < event.images.length;i++) {
-          const storageRef = firebase.storage().ref();
-          event.images[i] = storageRef.child(`events/${key}/${i}`).put(event.images[i]);
-
-          event.images[i].on('state_changed', snapshot => {}, error => { console.log(error) }, async () => {
-            let downloadURL = await event.images[i].snapshot.ref.getDownloadURL();
-
-            imageUrls.push(downloadURL);
-            firebase.database().ref('events').child(key).update({imageUrls: imageUrls});
-          });
+    addEvent: async ({commit}, {event, images}) => {
+      let formData = new FormData();
+      formData.append("graphql", `{ "query": "${addEvent.loc.source.body}", "variables": 
+        ${JSON.stringify(event)}
+      }`);
+      
+      if(images)
+      {
+        for(let i = 0;i < images.length;i++)
+        {
+          formData.append(i, images[i]);
         }
-
-        commit('addEvent', {
-          ...newEvent,
-          imageUrls: imageUrls,
-          id: key
-        });
-      } else {
-        commit('addEvent', {
-          ...newEvent,
-          id: key
-        });
       }
+      commit("addEvent", event);
+      await fetch("http://localhost:5000/api/graphql", {
+        method: 'post',
+        body: formData
+      });   
     },
-    updateEvent: async ({commit}, event) => {
-      if (event.players === undefined) {
-        event.players = [];
+    updateEvent: async ({commit}, {event, images}) => {
+      let formData = new FormData();
+      formData.append("graphql", `{ "query": "${updateEvent.loc.source.body}", "variables": 
+        ${JSON.stringify(event)}
+      }`);
+      
+      if(images)
+      {
+        for(let i = 0;i < images.length;i++)
+        {
+          formData.append(i, images[i]);
+        }
       }
-      const storageRef = firebase.storage().ref();
-
-      await firebase.database().ref('events').child(event.id).update(event).then(key => {
-        if (event.files) {
-          let putIndex = event.imageUrls.legnth;
-          for (let i = 0;i < event.files.length;i++) {
-            event.files[i] = storageRef.child(`events/${event.id}/${putIndex}`).put(event.files[i]);
+      commit("updateEvent", event);
+      await fetch("http://localhost:5000/api/graphql", {
+        method: 'post',
+        body: formData
+      });
+    },
+    deleteEvent: async ({commit}, event) => {
+      commit("deleteEvent", event);
+      await apolloClient.mutate({
+          mutation: deleteEvent,
+          variables:{
+            id: event.id
           }
-        }
-      }).then(() => {
-        for (let i = 0;i < event.files.length;i++) {
-          event.files[i].snapshot.ref.getDownloadURL().then(function (downloadURL) {
-            event.imageUrls.push(downloadURL);
-            firebase.database().ref('events').child(event.id).update({imageUrls: event.imageUrls});
-          });
-        }
-      });
-
-      await firebase.database().ref('events').child(event.id).update(event);
-      commit('updateEvent', event);
-    },
-    removeEvent: async ({commit}, event) => {
-      await firebase.database().ref('events').child(event.id).remove();
-      const storageRef = firebase.storage().ref();
-
-      if (event.imageUrls) {
-        for (let i = 0; i < event.imageUrls.length; i++) {
-         await storageRef.child(`events/${event.id}/${i}`).delete();
-        }
-      }
-
-      commit("removeEvent", event);
+        });
     },
   }
 }

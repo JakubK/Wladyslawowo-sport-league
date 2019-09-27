@@ -20,7 +20,7 @@
       </ul>
       <div class="search-data">
         <transition-group class="table-responsive" name="fade" tag="div">
-          <div class="search-data-item" :key="0" v-if="visibleTab === 0">
+          <div class="search-data-item" :key="0" v-if="visibleTab === 0 && results.players">
             <p class="no-results" v-if="results.players.length <= 0">Brak wyników</p>
             <table v-if="results.players.length > 0" class="table-panel search-table" >
               <thead>
@@ -50,7 +50,7 @@
               </tbody>
             </table>
           </div>
-          <div class="search-data-item" :key="1" v-if="visibleTab === 1">
+          <div class="search-data-item" :key="1" v-if="visibleTab === 1 && results.settlements">
             <p class="no-results" v-if="results.settlements.length <= 0">Brak wyników</p>
             <table v-if="results.settlements.length > 0" class="table-panel search-table">
               <thead>
@@ -78,7 +78,7 @@
               </tbody>
             </table>
           </div>
-          <div class="search-data-item" v-if="visibleTab === 2" :key="2" >
+          <div class="search-data-item" v-if="visibleTab === 2 && results.events" :key="2" >
             <p class="no-results" v-if="results.events.length <= 0">Brak wyników</p>
             <table v-if="results.events.length > 0" class="table-panel search-table">
               <thead>
@@ -108,7 +108,7 @@
               </tbody>
             </table>
           </div>
-          <div class="search-data-item" v-if="visibleTab === 3" :key="3">
+          <div class="search-data-item" v-if="visibleTab === 3 && results.news" :key="3">
             <p class="no-results" v-if="results.news.length <= 0">Brak wyników</p>
             <table v-if="results.news.length > 0" class="table-panel search-table" >
               <thead>
@@ -185,8 +185,14 @@ export default {
   },
   computed: {
     results() {
-      return this.$store.getters.search(this.phrase);
+      return this.$store.getters.search;
     }
+  },
+  created(){
+    this.$store.dispatch("search", this.phrase);
+  },
+  updated(){
+    this.$store.dispatch("search", this.phrase);
   }
 }
 

@@ -1,6 +1,6 @@
 query settlements
 {
-  settlements
+  dashboardSettlements: settlements
   {
     id,
     name

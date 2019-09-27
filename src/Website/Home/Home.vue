@@ -48,12 +48,6 @@
 
 import Sidebar from "./Sidebar/Sidebar"
 import Slider from "./Slider/Slider";
-import gql from 'graphql-tag'
-
-import topPlayers from '../../GraphQL/Queries/Home/topPlayers.graphql'
-import topEvents from '../../GraphQL/Queries/Home/topEvents.graphql'
-import topNews from '../../GraphQL/Queries/Home/topNews.graphql'
-import topSettlements from '../../GraphQL/Queries/Home/topSettlements.graphql'
 
 export default {
   name: "Home",
@@ -61,12 +55,25 @@ export default {
     Slider,
     Sidebar
   },
-  apollo:
-  {
-    topEvents: topEvents,
-    topNews: topNews,
-    topSettlements: topSettlements,
-    topPlayers: topPlayers
+  created(){
+    this.$store.dispatch("topEvents");
+    this.$store.dispatch("topNews");
+    this.$store.dispatch("topSettlements");
+    this.$store.dispatch("topPlayers");
+  },
+  computed:{
+    topEvents(){
+      return this.$store.getters.topEvents;
+    },
+    topNews(){
+      return this.$store.getters.topNews;
+    },
+    topSettlements(){
+      return this.$store.getters.topSettlements;
+    },
+    topPlayers(){
+      return this.$store.getters.topPlayers;
+    }
   }
 };
 

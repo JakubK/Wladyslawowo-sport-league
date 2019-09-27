@@ -68,19 +68,11 @@
 </template>
 
 <script>
-import news from '../../../GraphQL/Queries/Dashboard/news.graphql'
-import updateNews from '../../../GraphQL/Queries/Dashboard/updateNews.graphql'
-
 export default {
   name: "UpdateNews",
   props: ['id'],
   data() {
     return {
-      news: {
-        name: "",
-        description: "",
-        date: null,
-      },
       image: '',
       displayImage: '',
       alertMessage: null,
@@ -93,18 +85,11 @@ export default {
       const valid = await this.$validator.validateAll();
 
       if (valid) {
-        //this.$store.dispatch('updateNews', this.news);
-        let formData = new FormData();
-        formData.append("graphql", `{ "query": "${updateNews.loc.source.body}", "variables": 
-         ${JSON.stringify(this.news)}
-        }`);
-
-        formData.append(0,this.image);        
-
-        fetch("http://localhost:5000/api/graphql", {
-          method: 'post',
-          body: formData
+        this.$store.dispatch('updateNews', {
+          news: this.news,
+          image: this.image
         });
+
         this.closeModal();
       }
     },
@@ -134,22 +119,12 @@ export default {
     },
   },
   created() {
-   // const news = this.$store.getters.briefNewsById(this.$route.params.id);
-    //this.news = news;
-    this.$apollo.query({
-      query: news,
-      variables:
-      {
-        id: this.$route.params.id
-      }
-    }).then(result => {
-     this.news = result.data.newse;
-    });
+    this.$store.dispatch("dashboardNews", this.id);
+  },
+  computed:{
+    news(){
+      return this.$store.getters.dashboardNews;
+    }
   }
 }
-
 </script>
-
-<style scoped>
-
-</style>

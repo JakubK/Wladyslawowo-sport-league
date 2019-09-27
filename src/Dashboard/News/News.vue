@@ -18,7 +18,7 @@
           </tr>
           </thead>
           <transition-group tag="tbody" name="fade">
-            <tr v-for="(news, index) in newses" :key="news.id">
+            <tr v-for="(news, index) in newses" :key="index">
               <th>{{index}}</th>
               <th>{{news.name}}</th>
               <th>{{news.date}}</th>
@@ -47,48 +47,35 @@
 </template>
 
 <script>
-
-import newses from '../../GraphQL/Queries/Dashboard/newses.graphql'
-import deleteNews from '../../GraphQL/Queries/Dashboard/deleteNews.graphql'
-import gql from 'graphql-tag'
-
 export default {
   name: "News",
   data() {
     return {
       currentPage: 1,
       pageSize: 8,
-      newsData: []
     }
   },
-  apollo:
-  {
-    newses: newses
-  },
   computed: {
+    newses(){
+      return this.$store.getters.dashboardNewses;
+    },
     pages() {
-      return Math.ceil(this.newsData.length / this.pageSize);
+      return Math.ceil(this.newses.length / this.pageSize);
     }
   },
   created()
   {
-    this.newsData = this.$store.getters.news;
+    this.$store.dispatch("dashboardNewses");
   },
   methods: {
     removeNews(news) {
-      //this.$store.dispatch('removeNews',news);
-      this.$apollo.mutate({
-        mutation: deleteNews,
-        variables:{
-          id: news.id
-        }
-      });
+      this.$store.dispatch('removeNews',news);
     },
     updateNews(news) {
       this.$router.push({name: 'UpdateNews', params: {id: news.id}});
     },
     next() {
-      if ((this.currentPage * this.pageSize) < this.newsData.length) {
+      if ((this.currentPage * this.pageSize) < this.newses.length) {
         this.currentPage++;
       }
     },

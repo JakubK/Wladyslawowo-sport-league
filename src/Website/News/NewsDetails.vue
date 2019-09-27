@@ -20,23 +20,18 @@
 </template>
 
 <script>
-  import news from '../../GraphQL/Queries/Newses/news.graphql'
   export default {
     props: ['id'],
     name: "NewsDetails",
-    apollo:{
-      news: {
-        query()
-        {
-          return news;
-        },
-        variables(){
-          return{
-            id: this.id
-          }
-        }
+    created(){
+      this.$store.dispatch("news", this.id);
+    },
+    computed:{
+      news(){
+        return this.$store.getters.news;
       }
     }
+    
   }
 
 </script>

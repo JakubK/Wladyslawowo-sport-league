@@ -31,11 +31,15 @@
 </template>
 
 <script>
-import events from '../../GraphQL/Queries/Events/events.graphql'
 export default {
 	name: "Events",
-	apollo:{
-		events: events
+	computed:{
+		events(){
+			return this.$store.getters.events;
+		}
+	},
+	created(){
+		this.$store.dispatch('events');
 	}
 }
 

@@ -60,7 +60,7 @@
             <div @click="removeImage(index)" class="attachments-image" v-for="(image,index) in displayImages" :key="index">
               <img :src="image"/>
             </div>
-            <div @click="removeUrl(index)" class="attachments-image" v-for="(url,index) in event.links" :key="index + 'n'">
+            <div @click="removeUrl(index)" class="attachments-image" v-for="(url,index) in event.medias" :key="index + 'n'">
               <img :src="url"/>
             </div>
           </div>
@@ -127,28 +127,11 @@
 </template>
 
 <script>
-
-import event from '../../../GraphQL/Queries/Dashboard/event.graphql'
-import updateEvent from '../../../GraphQL/Queries/Dashboard/updateEvent.graphql'
-import players from '../../../GraphQL/Queries/Dashboard/players.graphql'
-
 export default {
   name: "UpdateEvent",
   props: ['id'],
-  apollo:
-  {
-    players: players
-  },
   data() {
     return {
-      event: {
-        name: '',
-        description: '',
-        date: '',
-        players: [],
-        images: [],
-        season: ''
-      },
       imagesToRemove: [],
       files: [],
       currentPlayer: {
@@ -162,6 +145,14 @@ export default {
       alertTimeoutId: null
     }
   },
+  computed:{
+    players(){
+      return this.$store.getters.dashboardPlayers;
+    },
+    event(){
+      return this.$store.getters.dashboardEvent;
+    }
+  },
   methods: {
     switchPlayerId(e)
     {
@@ -173,22 +164,9 @@ export default {
         this.event.files = this.files;
         this.event.id = this.$route.params.id
 
-        let formData = new FormData();
-        formData.append("graphql", `{ "query": "${updateEvent.loc.source.body}", "variables": 
-         ${JSON.stringify(this.event)}
-        }`);
-
-        for(let i = 0;i < this.images.length;i++)
-        {
-          formData.append(i, this.images[i]);
-        }
-
-        fetch("http://localhost:5000/api/graphql", {
-          method: 'post',
-          body: formData
+        this.$store.dispatch("updateEvent", {event: this.event, images: this.images}).then(() =>{
+          this.goBack();
         });
-
-        this.goBack();
       }
     },
     addPlayer() {
@@ -205,7 +183,6 @@ export default {
     },
     deletePlayer(index) {
       this.event.scores.splice(index, 1);
-      // this.event.settlementScores.splice(index, 1);
     },
     goBack() {
       this.$store.dispatch('closeModal');
@@ -238,21 +215,13 @@ export default {
       this.displayImages.splice(index,1);
     },
     removeUrl(index) {
-      this.event.links.splice(index,1);
+      this.event.medias.splice(index,1);
       this.displayImages.splice(index,1);
     }
   },
-    created() {
-    this.$apollo.query({
-      query: event,
-      variables:
-      {
-        id: this.$route.params.id
-      }
-    }).then(result => {
-     this.event = result.data.event;
-     this.event.links = this.event.medias;
-    });
+  created() {
+    this.$store.dispatch("dashboardEvent", this.id);
+    this.$store.dispatch("dashboardPlayers");
   }
 }
 
