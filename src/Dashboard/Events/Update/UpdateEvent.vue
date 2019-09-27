@@ -127,8 +127,6 @@
 </template>
 
 <script>
-import updateEvent from '../../../GraphQL/Queries/Dashboard/updateEvent.graphql'
-
 export default {
   name: "UpdateEvent",
   props: ['id'],
@@ -166,7 +164,7 @@ export default {
         this.event.files = this.files;
         this.event.id = this.$route.params.id
 
-        this.$store.dispatch("updateEvent", this.event, this.images).then(() =>{
+        this.$store.dispatch("updateEvent", {event: this.event, images: this.images}).then(() =>{
           this.goBack();
         });
       }

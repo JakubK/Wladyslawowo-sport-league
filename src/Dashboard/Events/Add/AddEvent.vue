@@ -160,7 +160,7 @@ export default {
 
       const valid = await this.$validator.validateAll();
       if (valid) {
-        this.$store.dispatch('addEvent', this.event, this.images);
+        this.$store.dispatch('addEvent', {event: this.event,images: this.images});
 
         this.sentProperly = true;
         this.alertMessage = "Pomyślnie dodano nową imprezę"

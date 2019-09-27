@@ -114,7 +114,7 @@ export default {
 
       commit('events', response.data.events);
     },
-    addEvent: async ({commit}, event, images) => {
+    addEvent: async ({commit}, {event, images}) => {
       let formData = new FormData();
       formData.append("graphql", `{ "query": "${addEvent.loc.source.body}", "variables": 
         ${JSON.stringify(event)}
@@ -133,7 +133,7 @@ export default {
         body: formData
       });   
     },
-    updateEvent: async ({commit}, event, images) => {
+    updateEvent: async ({commit}, {event, images}) => {
       let formData = new FormData();
       formData.append("graphql", `{ "query": "${updateEvent.loc.source.body}", "variables": 
         ${JSON.stringify(event)}

@@ -82,7 +82,7 @@ export default {
       const valid = await this.$validator.validateAll();
 
       if (valid) {
-        this.$store.dispatch('updatePlayer',this.player, this.image);
+        this.$store.dispatch('updatePlayer',{player: this.player,image: this.image});
         this.closeModal();
       }
     },

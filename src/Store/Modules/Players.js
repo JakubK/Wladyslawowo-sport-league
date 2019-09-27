@@ -102,7 +102,7 @@ export default {
       });
       commit('players', response.data.players);
     },
-    addPlayer: async ({commit}, player, image) => {
+    addPlayer: async ({commit}, {player, image}) => {
       commit("addPlayer", player);
       let formData = new FormData();
         formData.append("graphql", `{ "query": "${addPlayer.loc.source.body}", "variables": 
@@ -116,7 +116,7 @@ export default {
           body: formData
         });   
     },
-    updatePlayer: async ({commit}, player, image) => {
+    updatePlayer: async ({commit}, {player, image}) => {
       let formData = new FormData();
       formData.append("graphql", `{ "query": "${updatePlayer.loc.source.body}", "variables": 
         ${JSON.stringify(player)}

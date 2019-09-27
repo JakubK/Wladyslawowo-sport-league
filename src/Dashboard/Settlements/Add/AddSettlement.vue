@@ -82,7 +82,7 @@ export default {
 
       if (valid) 
       {
-        this.$store.dispatch('addSettlement', this.settlement, this.image);
+        this.$store.dispatch('addSettlement', {settlement: this.settlement, image: this.image});
         this.sentProperly = true;
         this.alertMessage = "Pomyślnie dodano nową dzielnicę lub wieś"
 

@@ -88,7 +88,7 @@ export default {
       });
       commit('settlements', response.data.settlements);
     },
-    addSettlement: async ({commit}, settlement, image) => {
+    addSettlement: async ({commit}, {settlement, image}) => {
       let formData = new FormData();
         formData.append("graphql", `{ "query": "${addSettlement.loc.source.body}", "variables": 
           ${JSON.stringify(settlement)}
@@ -102,7 +102,7 @@ export default {
         });   
         
     },
-    updateSettlement: async ({commit}, settlement, image) => {
+    updateSettlement: async ({commit}, {settlement, image}) => {
       commit('updateSettlement', settlement);
       let formData = new FormData();
         formData.append("graphql", `{ "query": "${updateSettlement.loc.source.body}", "variables": 

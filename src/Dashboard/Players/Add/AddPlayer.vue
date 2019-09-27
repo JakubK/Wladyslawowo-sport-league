@@ -87,7 +87,7 @@ export default {
       if (valid) {
         this.player.settlement = this.settlement;
         this.player.settlementId = this.settlementId(this.player.settlement);
-        this.$store.dispatch('addPlayer', this.player, this.image);
+        this.$store.dispatch('addPlayer', {player: this.player, image: this.image});
 
         this.sentProperly = true;
         this.alertMessage = "Pomyślnie dodano nowego gracza"

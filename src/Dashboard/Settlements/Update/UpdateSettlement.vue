@@ -76,7 +76,7 @@ export default {
   methods: {
     async handleSubmit()
     {
-      this.$store.dispatch('updateSettlement',this.settlement, this.image);
+      this.$store.dispatch('updateSettlement',{ settlement: this.settlement, image: this.image});
       this.closeModal();
     },
     onFileSelected(event) {
