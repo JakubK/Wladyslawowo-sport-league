@@ -6,8 +6,10 @@ import news from '../../GraphQL/Queries/Newses/news.graphql'
 import topNews from '../../GraphQL/Queries/Home/topNews.graphql'
 
 import dashboardNewses from '../../GraphQL/Queries/Dashboard/newses.graphql'
+import dashboardNews from '../../GraphQL/Queries/Dashboard/news.graphql'
 import deleteNews from '../../GraphQL/Queries/Dashboard/deleteNews.graphql'
 import addNews from '../../GraphQL/Queries/Dashboard/addNews.graphql'
+import updateNews from '../../GraphQL/Queries/Dashboard/updateNews.graphql'
 
 export default {
   state: {
@@ -15,9 +17,13 @@ export default {
     news:{},
     topNews: [],
 
-    dashboardNewses: []
+    dashboardNewses: [],
+    dashboardNews: {}
   },
   getters: {
+    dashboardNews: state => {
+      return state.dashboardNews;
+    },
     dashboardNewses: state => {
       return state.dashboardNewses;
     },
@@ -50,6 +56,9 @@ export default {
     }
   },
   mutations: {
+    dashboardNews: (state, dashboardNews) =>{
+      state.dashboardNews = dashboardNews;
+    },
     dashboardNewses: (state,dashboardNewses) =>{
       state.dashboardNewses = dashboardNewses;
     },
@@ -66,16 +75,25 @@ export default {
       state.dashboardNewses.push(newNews);
     },
     updateNews: (state, news) => {
-      let result = state.news.find(item => item.id === news.id);
-      let index = (state.news.indexOf(result));
+      let result = state.dashboardNewses.find(item => item.id === news.id);
+      let index = (state.dashboardNewses.indexOf(result));
 
-      Vue.set(state.news, index, news);
+      state.dashboardNewses.splice(index,1,news);
     },
     removeNews: (state, news) => {
       state.dashboardNewses.splice(state.dashboardNewses.indexOf(news), 1);
     }
   },
   actions: {
+    dashboardNews: async({commit}, id) =>{
+      let response = await apolloClient.query({
+        query: dashboardNews,
+        variables:{
+          id: id
+        }
+      });
+      commit('dashboardNews', response.data.dashboardNews);
+    },
     dashboardNewses: async({commit}) =>{
       let response = await apolloClient.query({
         query: dashboardNewses
@@ -117,34 +135,18 @@ export default {
         body: formData
       });   
     },
-    updateNews: ({commit}, news) => {
-      var editedImage = news.img !== undefined;
-      let file, uploadImg, imageRef, imageUrl, storageRef;
+    updateNews: ({commit}, {news, image}) => {
+      let formData = new FormData();
+        formData.append("graphql", `{ "query": "${updateNews.loc.source.body}", "variables": 
+        ${JSON.stringify(news)}
+        }`);
 
-      if(news.imageUrl === undefined)
-        news.imageUrl = null;
-
-      if (editedImage) {
-        file = news.img.name;
-        uploadImg = news.img;
-        storageRef = firebase.storage().ref();
-
-      }
-      firebase.database().ref('news').child(news.id).update(news).then(key => {
-        if (editedImage) {
-          uploadImg = storageRef.child(`news/${news.id}`).put(uploadImg)
-        }
-      }).then(() => {
-        if (editedImage) {
-          uploadImg.snapshot.ref.getDownloadURL().then(function (downloadURL) {
-            imageUrl = downloadURL;
-            firebase.database().ref('news').child(news.id).update({imageUrl: imageUrl});
-            news.imageUrl = imageUrl;
-          })
-        }
-
-        commit('updateNews', news);
-      });
+        formData.append(0,image);        
+        commit("updateNews", news);
+        fetch("http://localhost:5000/api/graphql", {
+          method: 'post',
+          body: formData
+        });
     },
     removeNews: async ({commit}, news) => {
       commit('removeNews', news);
