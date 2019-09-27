@@ -12,7 +12,6 @@ import deleteEvent from '../../GraphQL/Queries/Dashboard/deleteEvent.graphql'
 import addEvent from '../../GraphQL/Queries/Dashboard/addEvent.graphql'
 import updateEvent from '../../GraphQL/Queries/Dashboard/updateEvent.graphql'
 
-
 export default {
   state: {
     events: [],

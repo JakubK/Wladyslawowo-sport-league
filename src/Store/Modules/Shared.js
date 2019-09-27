@@ -1,9 +1,4 @@
 import router from '@/Router/index';
-import players from './Players'
-import events from './Events'
-import news from './News'
-import settlements from './Settlements'
-
 import {apolloClient} from '../../main'
 import search from '../../GraphQL/Queries/search.graphql'
 
@@ -12,10 +7,6 @@ export default {
     menuStatus: false,
     search: {}
   },
-  players,
-  events,
-  news,
-  settlements,
   getters: {
     menu: state => {
       return state.menuStatus;

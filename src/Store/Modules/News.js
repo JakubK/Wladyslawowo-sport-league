@@ -37,22 +37,6 @@ export default {
       return state.newses.sort((a, b) => {
         return new Date(b.date) - new Date(a.date);
       });
-    },
-    briefNewsById: state => newsId => {
-      const news = state.news.find(news => news.id === newsId);
-
-      if(news)
-      {
-        return {
-          id: news.id,
-          name: news.name,
-          date: news.date,
-          description: news.description,
-          imageUrl: news.imageUrl
-        }
-      }
-      else
-        return;
     }
   },
   mutations: {
@@ -124,7 +108,7 @@ export default {
     addNews: async ({commit}, {news, image}) => {
       let formData = new FormData();
       formData.append("graphql", `{ "query": "${addNews.loc.source.body}", "variables": 
-       ${JSON.stringify(news)}
+      ${JSON.stringify(news)}
       }`);
 
       formData.append(0,image);
