@@ -5,13 +5,21 @@ import newses from '../../GraphQL/Queries/Newses/newses.graphql'
 import news from '../../GraphQL/Queries/Newses/news.graphql'
 import topNews from '../../GraphQL/Queries/Home/topNews.graphql'
 
+import dashboardNewses from '../../GraphQL/Queries/Dashboard/newses.graphql'
+import deleteNews from '../../GraphQL/Queries/Dashboard/deleteNews.graphql'
+
 export default {
   state: {
     newses: [],
     news:{},
-    topNews: []
+    topNews: [],
+
+    dashboardNewses: []
   },
   getters: {
+    dashboardNewses: state => {
+      return state.dashboardNewses;
+    },
     topNews: state =>{
       return state.topNews;
     },
@@ -41,6 +49,9 @@ export default {
     }
   },
   mutations: {
+    dashboardNewses: (state,dashboardNewses) =>{
+      state.dashboardNewses = dashboardNewses;
+    },
     topNews: (state,topNews) =>{
       state.topNews = topNews;
     },
@@ -60,10 +71,16 @@ export default {
       Vue.set(state.news, index, news);
     },
     removeNews: (state, news) => {
-      state.news.splice(state.news.indexOf(news), 1);
+      state.dashboardNewses.splice(state.dashboardNewses.indexOf(news), 1);
     }
   },
   actions: {
+    dashboardNewses: async({commit}) =>{
+      let response = await apolloClient.query({
+        query: dashboardNewses
+      });
+      commit('dashboardNewses', response.data.dashboardNewses);
+    },
     topNews: async({commit}) =>{
       let response = await apolloClient.query({
         query: topNews
@@ -154,14 +171,13 @@ export default {
       });
     },
     removeNews: async ({commit}, news) => {
-      await firebase.database().ref('news').child(news.id).remove();
-
-      if (news.imageUrl) {
-        const storageRef = firebase.storage().ref();
-        await storageRef.child(`news/${news.id}`).delete();
-      }
-
       commit('removeNews', news);
+      await apolloClient.mutate({
+        mutation: deleteNews,
+        variables:{
+          id: news.id
+        }
+      });
     }
   }
 }
