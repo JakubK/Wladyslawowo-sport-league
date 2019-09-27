@@ -18,7 +18,7 @@
           </tr>
           </thead>
           <transition-group tag="tbody" name="fade">
-            <tr v-for="(news, index) in newses" :key="news.id">
+            <tr v-for="(news, index) in newses" :key="index">
               <th>{{index}}</th>
               <th>{{news.name}}</th>
               <th>{{news.date}}</th>

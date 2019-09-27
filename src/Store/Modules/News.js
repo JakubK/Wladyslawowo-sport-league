@@ -7,6 +7,7 @@ import topNews from '../../GraphQL/Queries/Home/topNews.graphql'
 
 import dashboardNewses from '../../GraphQL/Queries/Dashboard/newses.graphql'
 import deleteNews from '../../GraphQL/Queries/Dashboard/deleteNews.graphql'
+import addNews from '../../GraphQL/Queries/Dashboard/addNews.graphql'
 
 export default {
   state: {
@@ -62,7 +63,7 @@ export default {
       state.newses = newses;
     },
     addNews: (state, newNews) => {
-      state.news.push(newNews);
+      state.dashboardNewses.push(newNews);
     },
     updateNews: (state, news) => {
       let result = state.news.find(item => item.id === news.id);
@@ -102,44 +103,19 @@ export default {
       });
       commit('newses', response.data.newses);
     },
-    addNews: async ({commit}, news) => {
-      let imageUrl;
-      let key;
-      let uploadImg = news.img;
+    addNews: async ({commit}, {news, image}) => {
+      let formData = new FormData();
+      formData.append("graphql", `{ "query": "${addNews.loc.source.body}", "variables": 
+       ${JSON.stringify(news)}
+      }`);
 
-      const newNews = {
-        name: news.name,
-        description: news.description,
-        date: news.date,
-      };
-
-      const data = await firebase.database().ref("news").push(newNews);
-      key = data.key;
-
-      if (uploadImg) {
-        const storageRef = firebase.storage().ref();
-        uploadImg = storageRef.child(`news/${key}`).put(uploadImg);
-
-        uploadImg.on('state_changed', snapshot => {}, error => console.log(error), async () => {
-          let downloadURL = await uploadImg.snapshot.ref.getDownloadURL();
-          imageUrl = downloadURL;
-
-          await firebase.database().ref('news').child(key).update({imageUrl: imageUrl});
-
-          commit('addNews', {
-            ...newNews,
-            imageUrl: imageUrl,
-            id: key,
-          });
-        });
-      } else {
-        await firebase.database().ref('news').child(key).update({key: key});
-
-        commit('addNews', {
-          ...newNews,
-          id: key,
-        });
-      }
+      formData.append(0,image);
+      
+      commit("addNews", news);
+      fetch("http://localhost:5000/api/graphql", {
+        method: 'post',
+        body: formData
+      });   
     },
     updateNews: ({commit}, news) => {
       var editedImage = news.img !== undefined;
