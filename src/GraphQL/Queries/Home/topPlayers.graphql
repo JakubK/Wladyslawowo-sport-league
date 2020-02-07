@@ -1,7 +1,5 @@
-query topPlayers
-{
-  topPlayers
-  {
+query{
+  topPlayers(top: 10){
     id,
     name,
     points

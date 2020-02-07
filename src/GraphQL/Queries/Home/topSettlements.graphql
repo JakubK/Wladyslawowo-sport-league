@@ -1,6 +1,6 @@
 query
 {
-  topSettlements
+  topSettlements(top: 10)
   {
     id,
     name,
